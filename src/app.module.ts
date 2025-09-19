@@ -5,9 +5,11 @@ import { PrismaModule } from './common/prisma/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { ConfigModule } from './config/config.module';
 import { MailerModule } from './common/mailer/mailer.module';
+import { AuthModule } from './modules/auth/auth.module'; 
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [PrismaModule, LoggerModule, ConfigModule, MailerModule],
+  imports: [PrismaModule, LoggerModule, ConfigModule, MailerModule, AuthModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
