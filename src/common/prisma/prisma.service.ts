@@ -1,17 +1,17 @@
 import {
   Inject,
   Injectable,
+  LoggerService,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrismaClient } from '@prisma/client';
-import { Logger } from 'winston';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
   ) {
     super({
       log: [
@@ -24,12 +24,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
   async onModuleInit() {
     this.$on('query', (e) => {
-      this.logger.info(
+      this.logger.log(
         `[Prisma Query] ${e.query} ${e.params} +${e.duration}ms`,
       );
     });
     this.$on('info', (e) => {
-      this.logger.info(`[Prisma Info] ${e.message}`);
+      this.logger.log(`[Prisma Info] ${e.message}`);
     });
     this.$on('warn', (e) => {
       this.logger.warn(`[Prisma Warn] ${e.message}`);

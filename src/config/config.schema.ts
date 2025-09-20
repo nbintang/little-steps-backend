@@ -14,6 +14,7 @@ export const authConfigSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_REFRESH_TOKEN: z.string().min(1),
+  GOOGLE_CALLBACK_URL: z.url(),
 });
 
 export const mailConfigSchema = z.object({
@@ -21,7 +22,9 @@ export const mailConfigSchema = z.object({
   EMAIL_PASS: z.string().min(1),
   EMAIL_HOST: z.string().min(1),
   EMAIL_PORT: z.string().regex(/^\d+$/),
-  EMAIL_FROM: z.email(),
+  EMAIL_FROM: z.string().regex(/^.+<[^<>@]+@[^<>@]+\.[^<>@]+>$/, {
+    message: 'EMAIL_FROM harus dalam format "Name <email@domain.com>"',
+  }),
 });
 
 export const cloudinaryConfigSchema = z.object({

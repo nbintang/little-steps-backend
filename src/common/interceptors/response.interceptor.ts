@@ -32,13 +32,15 @@ export class ResponseInterceptor implements NestInterceptor {
           success: (result as any)?.success ?? true,
           message: (result as any)?.message ?? 'Success',
         };
- 
+
         const isObject = result !== null && typeof result === 'object';
 
         let data: any;
         if (isObject && 'data' in result) {
           data = (result as any).data;
-        } else if (!isObject && result !== undefined) { 
+        } else if (Array.isArray(result)) {
+          data = result;
+        } else if (!isObject && result !== undefined) {
           data = result;
         }
 

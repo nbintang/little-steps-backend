@@ -1,6 +1,6 @@
 enum UserRole {
   PARENT
-  ADMIN
+  ADMINISTRATOR
 }
 
 enum ContentType {

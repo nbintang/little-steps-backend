@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."UserRole" AS ENUM ('PARENT', 'ADMIN');
+CREATE TYPE "public"."UserRole" AS ENUM ('PARENT', 'ADMINISTRATOR');
 
 -- CreateEnum
 CREATE TYPE "public"."ContentType" AS ENUM ('ARTICLE', 'QUIZ');

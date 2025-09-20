@@ -1,11 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(private readonly userService: UserService) {}
+  async register(dto: RegisterDto) {
+    const existedUser = await this.userService.findUserById(dto.email);
+    if (existedUser) {
+      throw new BadRequestException(
+        'User alredy exist, please use another account',
+      );
+    }
+    await this.userService.createNewUser(dto);
   }
 
   findAll() {

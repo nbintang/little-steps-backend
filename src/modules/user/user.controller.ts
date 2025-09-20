@@ -12,8 +12,8 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findUsers();
+  async findAll() {
+    return await this.userService.findUsers();
   }
 
   @Get(':id')

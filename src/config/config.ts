@@ -14,6 +14,7 @@ export const authConfig = registerAs('auth', () => ({
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL
 }));
 
 export const mailConfig = registerAs('mail', () => ({

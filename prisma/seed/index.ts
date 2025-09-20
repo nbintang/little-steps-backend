@@ -60,7 +60,7 @@ async function main() {
       email: 'admin@example.com',
       password: dummyPassword,
       provider: 'LOCAL',
-      role: 'ADMIN',
+      role: 'ADMINISTRATOR',
       profile: {
         create: {
           fullName: 'Administrator',
@@ -156,12 +156,8 @@ async function main() {
         data: {
           childId: child.id,
           day: day as DayOfWeek,
-          startTime: new Date(
-            `1970-01-01T${faker.number.int({ min: 8, max: 10 })}:00:00Z`,
-          ),
-          endTime: new Date(
-            `1970-01-01T${faker.number.int({ min: 18, max: 21 })}:00:00Z`,
-          ),
+          startTime: new Date(),
+          endTime: new Date(),
           timezone: 'Asia/Jakarta',
         },
       });
@@ -171,7 +167,7 @@ async function main() {
   // Create Content
   console.log('📚 Creating content...');
   const contents = [];
-  const contentTypes = ['ARTICLE','QUIZ', "FICTION_STOR"];
+  const contentTypes = ['ARTICLE', 'FICTION_STORY'];
 
   for (let i = 0; i < 20; i++) {
     const contentType = faker.helpers.arrayElement(contentTypes);
@@ -348,8 +344,16 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(async (e) => {
     console.error('❌ Seeding error:', e);
+    await Promise.all([
+      prisma.user.deleteMany(),
+      prisma.quiz.deleteMany(),
+      prisma.badge.deleteMany(),
+      prisma.childProfile.deleteMany(),
+      prisma.parentalControlSchedule.deleteMany(),
+      prisma.forumThread.deleteMany(),
+    ]);
     process.exit(1);
   })
   .finally(async () => {

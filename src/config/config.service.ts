@@ -9,9 +9,20 @@ export class ConfigService {
     return this.configService.get<number>('app.port');
   }
 
-  get jwtSecret(): string {
-    return this.configService.get<string>('auth.jwtSecret');
+  get jwtAccessSecret(): string {
+    return this.configService.get<string>('auth.jwtAccessSecret');
   }
 
-  
+  get googleClientId(): string {
+    return this.configService.get<string>('auth.googleClientId');
+  }
+  get googleClientSecret(): string {
+    return this.configService.get<string>('auth.googleClientSecret');
+  }
+  get googleRefreshToken(): string {
+    return this.configService.get<string>('auth.googleRefreshToken');
+  }
+  get googleCallbackUrl(): string {
+    return this.configService.get<string>('auth.googleCallbackUrl');
+  }
 }

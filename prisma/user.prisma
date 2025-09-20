@@ -47,7 +47,7 @@ model Address {
     zipCode   String
     country   String
     profileId String  @unique @map("profile_id")
-    profile   Profile @relation(fields: [profileId], references: [id])
+    profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
     @@map("addresses")
 }
