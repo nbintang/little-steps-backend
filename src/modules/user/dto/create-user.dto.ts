@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsString,
@@ -6,12 +7,16 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { CreateAddressDto } from 'src/modules/address/dto/create-address.dto';
+import { CreateProfileDto } from 'src/modules/profile/dto/create-profile.dto';
 
-export class CreateUserDto implements Prisma.UserCreateInput {
+export class CreateUserDto implements Omit<Prisma.UserCreateInput, "profile"> {
   @IsEmail()
   @IsString()
   email: string;
+
   @IsString()
   @Length(8, 199)
   name: string;
@@ -25,5 +30,11 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   })
   password: string;
 
-  
+  @ValidateNested()
+  @Type(() => CreateProfileDto)
+  profile: CreateProfileDto
+
+  @ValidateNested()
+  @Type(() => CreateAddressDto)
+  address : CreateAddressDto
 }

@@ -8,9 +8,6 @@
 -- AlterTable
 ALTER TABLE "public"."profile" DROP COLUMN "address";
 
--- AlterTable
-ALTER TABLE "public"."users" ADD COLUMN     "phone_number" TEXT NOT NULL;
-
 -- CreateTable
 CREATE TABLE "public"."addresses" (
     "id" TEXT NOT NULL,

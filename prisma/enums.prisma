@@ -5,9 +5,7 @@ enum UserRole {
 
 enum ContentType {
   ARTICLE
-  VIDEO
-  GAME
-  QUIZ
+  FICTION_STORY
 }
 
 enum DayOfWeek {

@@ -3,7 +3,6 @@ model User {
     name        String
     email       String       @unique @db.VarChar(255)
     password    String
-    phoneNumber String       @map("phone_number")
     provider    AuthProvider @default(LOCAL)
     providerId  String?      @map("provider_id")
     role        UserRole     @default(PARENT)
@@ -33,7 +32,7 @@ model Profile {
     updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
 
     user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    Address Address?
+    address Address?
 
     @@map("profile")
 }
