@@ -1,0 +1,26 @@
+enum UserRole {
+  PARENT
+  ADMIN
+}
+
+enum ContentType {
+  ARTICLE
+  VIDEO
+  GAME
+  QUIZ
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}

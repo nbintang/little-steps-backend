@@ -1,0 +1,45 @@
+model Quiz {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  targetAgeMin Int?     @map("target_age_min")
+  targetAgeMax Int?     @map("target_age_max")
+  createdBy    String   @map("created_by")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  author    User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  questions Question[]
+  progress  Progress[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  quizId    String   @map("quiz_id")
+  text      String
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  text       String
+  isCorrect  Boolean  @default(false) @map("is_correct")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
