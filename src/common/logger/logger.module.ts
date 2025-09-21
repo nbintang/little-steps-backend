@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
   imports: [WinstonModule.forRoot(winstonLoggerOptions)],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
-    { provide: APP_FILTER, useClass: HttpExceptionFilter }
-  ]
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
+  ],
 })
-export class LoggerModule { }
+export class LoggerModule {}

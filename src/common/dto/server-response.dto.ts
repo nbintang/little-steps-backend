@@ -1,6 +1,6 @@
-export class ServerResponseDto<T = any> {
-    statusCode: number;
-    success: boolean;
-    message: string;
-    data?: T
+export class ServerResponseDto<T = Array<object> | object> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data?: T;
 }
