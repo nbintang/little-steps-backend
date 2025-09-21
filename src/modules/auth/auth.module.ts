@@ -23,7 +23,7 @@ import { ConfigService } from '../../config/config.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: await configService.jwtAccessSecret,
+        secret: await configService.jwt.accessSecret,
         signOptions: { expiresIn: '30s' },
       }),
     }),

@@ -23,6 +23,7 @@ export const mailConfig = registerAs('mail', () => ({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT ?? '587', 10),
   from: process.env.EMAIL_FROM,
+  secure: Boolean(process.env.EMAIL_SECURE),
 }));
 
 export const cloudinaryConfig = registerAs('cloudinary', () => ({

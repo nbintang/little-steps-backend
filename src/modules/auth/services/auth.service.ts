@@ -31,7 +31,7 @@ export class AuthService {
   async validateRefreshToken(token: string): Promise<boolean> {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.jwtRefreshSecret,
+        secret: this.configService.jwt.refreshSecret,
       });
       const user = await this.userService.findUserById(payload.sub);
       return !!user;
@@ -68,7 +68,7 @@ export class AuthService {
       this.jwtService.signAsync(
         { sub: userId, email, role, verified },
         {
-          secret: this.configService.jwtRefreshSecret,
+          secret: this.configService.jwt.refreshSecret,
           expiresIn: '1d',
         },
       ),
@@ -80,12 +80,13 @@ export class AuthService {
   }
   async register(dto: RegisterDto): Promise<User> {
     const existedUser = await this.userService.findUserById(dto.email);
+    this.logger.log(dto);
     if (existedUser) {
       throw new BadRequestException(
         'User already exist, please use another account',
       );
     }
-    if (!existedUser.acceptedTerms) {
+    if (!dto.acceptedTerms) {
       throw new BadRequestException('Please accept our terms and condition');
     }
     const hashPassword = await this.hashString(dto.password);
@@ -98,7 +99,7 @@ export class AuthService {
   async login({ email, password }: { email: string; password: string }) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User is not registered');
-    const isPasswordValid = this.compareHash(password, user.password);
+    const isPasswordValid = await this.compareHash(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
     return await this.generateJwtTokens({
       userId: user.id,

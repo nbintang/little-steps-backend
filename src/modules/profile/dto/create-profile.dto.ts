@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -28,9 +29,10 @@ export class CreateProfileDto
   @IsOptional()
   avatarUrl?: string;
 
-  @Type(() => Number)
-  @IsInt()
-  @Min(18)
+  @IsString()
+  @Matches(/^\+?\d{10,15}$/, {
+    message: 'Phone harus berupa angka 10-15 digit, bisa diawali +',
+  })
   phone: string;
 
   @Type(() => Date)

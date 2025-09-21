@@ -16,8 +16,8 @@ export class UserService {
         acceptedTerms,
         acceptedAt: new Date(),
         profile: {
-          ...rest.profile,
           create: {
+            ...rest.profile,
             address: {
               create: {
                 ...rest.address,

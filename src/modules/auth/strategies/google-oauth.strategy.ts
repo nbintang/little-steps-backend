@@ -12,9 +12,9 @@ import {
 export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.googleClientId,
-      clientSecret: configService.googleClientSecret,
-      callbackURL: configService.googleCallbackUrl,
+      clientID: configService.google.clientId,
+      clientSecret: configService.google.clientSecret,
+      callbackURL: configService.google.callbackUrl,
       scope: ['profile', 'email'],
     } as StrategyOptions);
   }

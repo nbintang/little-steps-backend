@@ -1,7 +1,15 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { ConfigService } from '../../../config/config.service';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 interface UserInfo {
   name: string;
@@ -16,17 +24,19 @@ export class AuthOtpService {
     private mailerService: MailerService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private logger: Logger,
   ) {
     const PROD_URL = this.configService.frontendUrl;
     this.frontendUrl =
       process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000'
+        ? 'http://localhost:3000/api'
         : PROD_URL;
   }
 
   private generateVerificationToken(payload: { email: string }): string {
     return this.jwtService.sign(payload, {
-      secret: this.configService.jwtVerificationTokenSecret,
+      secret: this.configService.jwt.verificationTokenSecret,
       expiresIn: '5m',
     });
   }
@@ -34,7 +44,7 @@ export class AuthOtpService {
   public async decodeConfirmationToken(token: string) {
     try {
       const payload = this.jwtService.verify<any>(token, {
-        secret: this.configService.jwtVerificationTokenSecret,
+        secret: this.configService.jwt.verificationTokenSecret,
       });
       return {
         email: payload.email,
@@ -42,12 +52,7 @@ export class AuthOtpService {
         id: payload.sub,
       };
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        throw new BadRequestException(
-          'Token expired, please resend email for verification',
-        );
-      }
-      throw new BadRequestException('Invalid token');
+      throw new UnauthorizedException('Invalid token');
     }
   }
 
@@ -76,7 +81,7 @@ export class AuthOtpService {
       throw new HttpException('Something Went Wrong', 500);
     }
   }
-  public async sendPasswordReset(userInfo: UserInfo): Promise<boolean> {
+  public async sendPasswordReset(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,
     });
@@ -85,7 +90,7 @@ export class AuthOtpService {
     const subject = 'Reset your password';
     const template = this.mailerService.getPasswordResetTemplate(userInfo.name);
 
-    return this.mailerService.sendEmail({
+    const sendedEmail = await this.mailerService.sendEmail({
       to: userInfo.email,
       subject: `Hi ${userInfo.name} 👋, please ${subject}`,
       context: {
@@ -95,5 +100,8 @@ export class AuthOtpService {
         subject,
       },
     });
+    if (!sendedEmail) {
+      throw new HttpException('Something Went Wrong', 500);
+    }
   }
 }

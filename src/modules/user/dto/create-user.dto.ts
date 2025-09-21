@@ -42,11 +42,17 @@ export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
 
   @ValidateNested()
   @Type(() => CreateProfileDto)
-  @IsNotEmptyObject()
+  @IsNotEmptyObject(
+    { nullable: false },
+    { message: 'Profile tidak boleh kosong dan harus berupa object' },
+  )
   profile: CreateProfileDto;
 
   @ValidateNested()
   @Type(() => CreateAddressDto)
-  @IsNotEmptyObject()
+  @IsNotEmptyObject(
+    { nullable: false },
+    { message: 'Address tidak boleh kosong dan harus berupa object' },
+  )
   address: CreateAddressDto;
 }

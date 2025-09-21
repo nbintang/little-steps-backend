@@ -49,10 +49,12 @@ model Address {
     province  String
     latitude  Float?
     longitude Float?
-    zipCode   String
+    zipCode   String  @map("zip_code")
     country   String
     profileId String  @unique @map("profile_id")
     profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+    
     @@map("addresses")
 }

@@ -18,13 +18,14 @@ export const authConfigSchema = z.object({
 });
 
 export const mailConfigSchema = z.object({
-  EMAIL_USER: z.email(),
+  EMAIL_USER: z.email().or(z.string()),
   EMAIL_PASS: z.string().min(1),
   EMAIL_HOST: z.string().min(1),
   EMAIL_PORT: z.string().regex(/^\d+$/),
   EMAIL_FROM: z.string().regex(/^.+<[^<>@]+@[^<>@]+\.[^<>@]+>$/, {
     message: 'EMAIL_FROM harus dalam format "Name <email@domain.com>"',
   }),
+  EMAIL_SECURE: z.coerce.boolean()
 });
 
 export const cloudinaryConfigSchema = z.object({
