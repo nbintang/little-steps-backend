@@ -2,9 +2,9 @@ import * as z from 'zod';
 
 export const appConfigSchema = z.object({
   PORT: z.string().regex(/^\d+$/).default('3000'),
-  DATABASE_URL: z.string().url(),
-  FRONTEND_URL: z.string().url().optional(),
-  PROD_BACKEND_URL: z.string().url().optional(),
+  DATABASE_URL: z.url(),
+  FRONTEND_URL: z.url().optional(),
+  BACKEND_URL: z.url().optional(),
 });
 
 export const authConfigSchema = z.object({

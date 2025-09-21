@@ -8,9 +8,21 @@ export class ConfigService {
   get port(): number {
     return this.configService.get<number>('app.port');
   }
+  get frontendUrl(): string {
+    return this.configService.get<string>('app.frontendUrl');
+  }
+  get backendUrl(): string {
+    return this.configService.get<string>('app.backendUrl');
+  }
 
   get jwtAccessSecret(): string {
     return this.configService.get<string>('auth.jwtAccessSecret');
+  }
+  get jwtRefreshSecret(): string {
+    return this.configService.get<string>('auth.jwtRefreshSecret');
+  }
+  get jwtVerificationTokenSecret(): string {
+    return this.configService.get<string>('auth.jwtVerificationTokenSecret');
   }
 
   get googleClientId(): string {
