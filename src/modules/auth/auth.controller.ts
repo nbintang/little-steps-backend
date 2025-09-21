@@ -13,14 +13,16 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './services/auth.service';
+import { AuthService, GenerateTokenResponse } from './services/auth.service';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthOtpService } from './services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -120,8 +122,24 @@ export class AuthController {
     };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh-token')
+  async refreshTokens(@Req() request: Request) {
+    const userId = request.user.sub;
+    const tokens = await this.authService.refreshToken(userId);
+    return {
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      },
+    };
   }
+
+  @Delete('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    response.clearCookie('refreshToken', this.setCookieOptions(isProduction));
+    return await this.authService.logout();
+  }
+
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   LoggerService,
@@ -14,7 +15,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as argon2 from 'argon2';
 import { User } from '@prisma/client';
 
-interface JwtTokenResponse {
+export interface GenerateTokenResponse {
   accessToken: string;
   refreshToken: string;
 }
@@ -62,7 +63,7 @@ export class AuthService {
     email: string;
     role: string;
     verified: boolean;
-  }): Promise<JwtTokenResponse> {
+  }): Promise<GenerateTokenResponse> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync({ sub: userId, email, role, verified }),
       this.jwtService.signAsync(
@@ -123,8 +124,25 @@ export class AuthService {
       verified: user.verified,
     });
   }
-
+  async refreshToken(
+    userId: string,
+  ): Promise<GenerateTokenResponse> {
+    const user = await this.userService.findUserById(userId);
+    if (!user) throw new ForbiddenException('Access Denied');
+    const { id, email, role, verified } = user;
+    return await this.generateJwtTokens({
+      userId: id,
+      email,
+      role,
+      verified,
+    });
+  }
   remove(id: number) {
     return `This action removes a #${id} auth`;
+  }
+   async logout() {
+    return {
+      message: 'Successfully signed out',
+    };
   }
 }
