@@ -18,8 +18,8 @@ export class ResponseInterceptor implements NestInterceptor {
   ) {}
 
   intercept(ctx: ExecutionContext, next: CallHandler): Observable<any> {
-    const req = ctx.switchToHttp().getRequest();
-    const { method, url } = req;
+    const request = ctx.switchToHttp().getRequest();
+    const { method, url } = request;
     const start = Date.now();
 
     return next.handle().pipe(

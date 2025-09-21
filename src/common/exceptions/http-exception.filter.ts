@@ -25,7 +25,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
   catch(exception: HttpException | UnauthorizedException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response<ServerErrorResponseDto>>();
-    const req = ctx.getRequest<Request>();
+    const request = ctx.getRequest<Request>();
 
     if (exception instanceof BadRequestException) {
       const response = exception.getResponse();
@@ -74,7 +74,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
 
     if (exception instanceof UnauthorizedException) {
       this.logger.error(
-        `${req.method} ${req.url} 401 Unauthorized: ${exception.message}`,
+        `${request.method} ${request.url} 401 Unauthorized: ${exception.message}`,
       );
       return res.status(HttpStatus.UNAUTHORIZED).json({
         statusCode: HttpStatus.UNAUTHORIZED,
@@ -98,7 +98,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         ? responseMessage
         : (responseMessage as any)?.message || 'Internal server error';
 
-    this.logger.error(`${req.method} ${req.url} ${status} ${message}`);
+    this.logger.error(`${request.method} ${request.url} ${status} ${message}`);
 
     res.status(status).json({
       statusCode: status,
