@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   LoggerService,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from '../dto/register.dto';
@@ -84,6 +85,9 @@ export class AuthService {
         'User already exist, please use another account',
       );
     }
+    if (!existedUser.acceptedTerms) {
+      throw new BadRequestException('Please accept our terms and condition');
+    }
     const hashPassword = await this.hashString(dto.password);
     return await this.userService.createNewUser({
       ...dto,
@@ -104,8 +108,19 @@ export class AuthService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async verifyUser(email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    if (!user) throw new NotFoundException('User not found');
+    if (user.verified) {
+      throw new BadRequestException('User is already verified');
+    }
+    await this.userService.verifyUserByEmail(user.email);
+    return await this.generateJwtTokens({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      verified: user.verified,
+    });
   }
 
   remove(id: number) {

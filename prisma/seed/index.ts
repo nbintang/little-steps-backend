@@ -62,6 +62,8 @@ async function main() {
       provider: 'LOCAL',
       verified: true,
       role: 'ADMINISTRATOR',
+      acceptedTerms: true,
+      acceptedAt: new Date(),
       profile: {
         create: {
           fullName: 'Administrator',
@@ -96,6 +98,8 @@ async function main() {
         provider: i % 3 === 0 ? 'GOOGLE' : 'LOCAL',
         providerId: i % 3 === 0 ? faker.string.uuid() : null,
         role: 'PARENT',
+        acceptedTerms: true,
+        acceptedAt: new Date(),
         verified: true,
         profile: {
           create: {

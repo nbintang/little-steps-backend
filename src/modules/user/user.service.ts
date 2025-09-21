@@ -7,12 +7,14 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
   async createNewUser(dto: CreateUserDto) {
-    const { name, email, password, ...rest } = dto;
+    const { name, email, password, acceptedTerms, ...rest } = dto;
     const newUser = await this.prisma.user.create({
       data: {
         name,
         email,
         password,
+        acceptedTerms,
+        acceptedAt: new Date(),
         profile: {
           ...rest.profile,
           create: {
@@ -38,6 +40,16 @@ export class UserService {
 
   async findUserByEmail(email: string) {
     return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async verifyUserByEmail(email: string) {
+    const user = await this.prisma.user.update({
+      where: { email },
+      data: {
+        verified: true,
+      },
+    });
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

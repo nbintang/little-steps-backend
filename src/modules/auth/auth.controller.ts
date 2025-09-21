@@ -12,13 +12,14 @@ import {
   LoggerService,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthOtpService } from './services/auth-otp.service';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Controller('auth')
@@ -30,9 +31,9 @@ export class AuthController {
     private readonly logger: LoggerService,
   ) {}
 
-  private setCookieOptions(isProduction: boolean) {
+  private setCookieOptions(isProduction: boolean): CookieOptions {
     return {
-      sameSite: isProduction ? 'none' : ('lax' as 'none' | 'lax'),
+      sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
@@ -77,9 +78,7 @@ export class AuthController {
         );
       }
     }
-
     const { accessToken, refreshToken } = await this.authService.login(dto);
-
     if (accessToken && refreshToken) {
       const isProduction = process.env.NODE_ENV === 'production';
       response.cookie(
@@ -88,7 +87,6 @@ export class AuthController {
         this.setCookieOptions(isProduction),
       );
     }
-
     return {
       data: {
         accessToken,
@@ -97,9 +95,29 @@ export class AuthController {
     };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('verify')
+  @HttpCode(HttpStatus.CREATED)
+  async verify(
+    @Query('token') token: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { email } = await this.authOtpService.decodeConfirmationToken(token);
+    const { accessToken, refreshToken } =
+      await this.authService.verifyUser(email);
+    if (accessToken && refreshToken) {
+      const isProduction = process.env.NODE_ENV === 'production';
+      response.cookie(
+        'refreshToken',
+        refreshToken,
+        this.setCookieOptions(isProduction),
+      );
+    }
+    return {
+      data: {
+        accessToken,
+        refreshToken,
+      },
+    };
   }
 
   @Delete(':id')
