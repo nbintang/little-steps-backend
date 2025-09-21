@@ -60,6 +60,7 @@ async function main() {
       email: 'admin@example.com',
       password: dummyPassword,
       provider: 'LOCAL',
+      verified: true,
       role: 'ADMINISTRATOR',
       profile: {
         create: {
@@ -95,6 +96,7 @@ async function main() {
         provider: i % 3 === 0 ? 'GOOGLE' : 'LOCAL',
         providerId: i % 3 === 0 ? faker.string.uuid() : null,
         role: 'PARENT',
+        verified: true,
         profile: {
           create: {
             fullName: faker.person.fullName(),
