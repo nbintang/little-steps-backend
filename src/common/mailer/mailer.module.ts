@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MailerService } from './mailer.service';
-import { MailerModule as NestMailerModule} from '@nestjs-modules/mailer';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
+
 import { MailerConfig } from './mailer.config';
-import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '../../config/config.module';
+import { ConfigService } from '../../config/config.service';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    JwtModule.register({}),
     NestMailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

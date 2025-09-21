@@ -2,9 +2,9 @@ import * as z from 'zod';
 
 export const appConfigSchema = z.object({
   PORT: z.string().regex(/^\d+$/).default('3000'),
-  DATABASE_URL: z.string().url(),
-  FRONTEND_URL: z.string().url().optional(),
-  PROD_BACKEND_URL: z.string().url().optional(),
+  DATABASE_URL: z.url(),
+  FRONTEND_URL: z.url().optional(),
+  BACKEND_URL: z.url().optional(),
 });
 
 export const authConfigSchema = z.object({
@@ -14,14 +14,18 @@ export const authConfigSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_REFRESH_TOKEN: z.string().min(1),
+  GOOGLE_CALLBACK_URL: z.url(),
 });
 
 export const mailConfigSchema = z.object({
-  EMAIL_USER: z.email(),
+  EMAIL_USER: z.email().or(z.string()),
   EMAIL_PASS: z.string().min(1),
   EMAIL_HOST: z.string().min(1),
   EMAIL_PORT: z.string().regex(/^\d+$/),
-  EMAIL_FROM: z.email(),
+  EMAIL_FROM: z.string().regex(/^.+<[^<>@]+@[^<>@]+\.[^<>@]+>$/, {
+    message: 'EMAIL_FROM harus dalam format "Name <email@domain.com>"',
+  }),
+  EMAIL_SECURE: z.coerce.boolean()
 });
 
 export const cloudinaryConfigSchema = z.object({

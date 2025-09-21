@@ -1,28 +1,30 @@
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface';
-import { ConfigService } from '@nestjs/config';
+
 import { join } from 'path';
+import { ConfigService } from '../../config/config.service';
 
 export const MailerConfig: MailerAsyncOptions['useFactory'] = async (
   config: ConfigService,
 ) => ({
   transport: {
-    host: config.get<string>('mail.emailHost'),
-    port: config.get<number>('mail.emailPort'),
-    secure: config.get<boolean>('mail.emailSecure'),
+    host: config.mail.host,
+    port: config.mail.port,
+    secure: config.mail.secure,
     auth: {
-      user: config.get<string>('mail.emailUser'),
-      pass: config.get<string>('mail.emailPass'),
+      user: config.mail.user,
+      pass: config.mail.pass,
     },
     debug: true,
     logger: true,
   },
   defaults: {
-    from: config.get<string>('mail.emailFrom'),
-    replyTo: config.get<string>('mail.emailUser'),
+    from: config.mail.from,
+    replyTo: config.mail.user,
   },
   template: {
-    dir: join(__dirname, '..', 'mail', 'templates'),
+    // For production : join(__dirname, '..', 'mailer', 'templates'),
+    dir: join(process.cwd(), 'src', 'common', 'mailer', 'templates'),
     adapter: new HandlebarsAdapter(),
     options: { strict: true },
   },

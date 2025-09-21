@@ -4,7 +4,7 @@ export const appConfig = registerAs('app', () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
   databaseUrl: process.env.DATABASE_URL,
   frontendUrl: process.env.FRONTEND_URL,
-  prodBackendUrl: process.env.PROD_BACKEND_URL,
+  backendUrl: process.env.BACKEND_URL,
 }));
 
 export const authConfig = registerAs('auth', () => ({
@@ -14,6 +14,7 @@ export const authConfig = registerAs('auth', () => ({
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
 }));
 
 export const mailConfig = registerAs('mail', () => ({
@@ -22,6 +23,7 @@ export const mailConfig = registerAs('mail', () => ({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT ?? '587', 10),
   from: process.env.EMAIL_FROM,
+  secure: Boolean(process.env.EMAIL_SECURE),
 }));
 
 export const cloudinaryConfig = registerAs('cloudinary', () => ({
@@ -29,3 +31,10 @@ export const cloudinaryConfig = registerAs('cloudinary', () => ({
   apiKey: process.env.CLOUDINARY_API_KEY,
   apiSecret: process.env.CLOUDINARY_API_SECRET,
 }));
+
+export const globalConfig = [
+  appConfig,
+  authConfig,
+  mailConfig,
+  cloudinaryConfig,
+];

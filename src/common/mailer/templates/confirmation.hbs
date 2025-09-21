@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{{subject}}</title>
+    <style>
+      html, body {
+        height: 100% !important;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 40px);
+        position: relative;
+      }
+      .container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+      }
+      .header {
+        background: url('https://images.unsplash.com/photo-1606787947511-c34959755d59?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover;
+        color: #ffffff;
+        padding: 45px 24px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(3, 70, 299, 0.5) 0%, rgba(3, 58, 237, 0.5) 100%);
+        z-index: 0;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        position: relative;
+        z-index: 2;
+      }
+      .content {
+        padding: 40px 32px;
+        color: #374151;
+        flex: 1;
+        line-height: 1.7;
+      }
+      .greeting {
+        font-size: 18px;
+        margin-bottom: 24px;
+        color: #1f2937;
+      }
+      .greeting strong {
+        color: #4f46e5;
+        font-weight: 600;
+      }
+      .content p {
+        margin-bottom: 20px;
+        font-size: 16px;
+      }
+      .btn {
+        display: inline-block;
+        margin: 32px 0 24px 0;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+      }
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+      }
+      .btn:hover::before {
+        left: 100%;
+      }
+      .date-info {
+        margin-top: 32px;
+        padding: 16px;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 10px;
+        border-left: 4px solid #4f46e5;
+      }
+      .date-info p {
+        margin: 0;
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+      }
+      .footer {
+        text-align: center;
+        padding: 24px;
+        font-size: 13px;
+        color: #9ca3af;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-top: 1px solid #e5e7eb;
+        position: relative;
+      }
+      .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 20%;
+        right: 20%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #4f46e5, transparent);
+      }
+      .logo {
+        font-weight: 700;
+        color: #4f46e5;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      
+      /* Subtle floating animation overlay */
+      .header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        z-index: 1;
+      }
+      
+      
+      /* Mobile responsiveness */
+      @media (max-width: 640px) {
+        body {
+          padding: 10px 0;
+        }
+        .container {
+          border-radius: 12px;
+          margin: 0 10px;
+          min-height: calc(100vh - 20px);
+        }
+        .header {
+          padding: 50px 20px; 
+        }
+        .header h1 {
+          font-size: 24px;
+        }
+        .content {
+          padding: 24px 20px;
+        }
+        .btn {
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>{{title}}</h1>
+      </div>
+      <div class="content">
+        <div class="greeting">
+          <p>Halo <strong>{{name}}</strong>,</p>
+        </div>
+        <p>{{message}}</p>
+        <p>{{description}}</p>
+        
+        <a href="{{url}}" class="btn">Lanjutkan</a>
+        
+        <div class="date-info">
+          <p>📅 Tanggal: {{date}}</p>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="logo">LITTLE STEPS</div>
+        <div>&copy; {{date}} Little Steps. Seluruh hak cipta dilindungi.</div>
+      </div>
+    </div>
+  </body>
+</html>

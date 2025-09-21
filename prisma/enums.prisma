@@ -1,0 +1,24 @@
+enum UserRole {
+  PARENT
+  ADMINISTRATOR
+}
+
+enum ContentType {
+  ARTICLE
+  FICTION_STORY
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}

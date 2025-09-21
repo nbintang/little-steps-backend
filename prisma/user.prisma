@@ -1,0 +1,60 @@
+model User {
+    id            String    @id @default(uuid())
+    name          String
+    email         String    @unique @db.VarChar(255)
+    password      String
+    verified      Boolean   @default(false)
+    acceptedTerms Boolean   @default(false) @map("accepted_terms")
+    acceptedAt    DateTime? @map("accepted_at")
+
+    provider   AuthProvider @default(LOCAL)
+    providerId String?      @map("provider_id")
+    role       UserRole     @default(PARENT)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    profile       Profile?
+    childProfiles ChildProfile[]
+    contents      Content[]
+    quizzes       Quiz[]
+    userBadges    UserBadge[]
+    forumThreads  ForumThread[]
+    forumPosts    ForumPost[]
+
+    @@map("users")
+}
+
+model Profile {
+    id        String    @id @default(uuid())
+    userId    String    @unique @map("user_id")
+    fullName  String?   @map("full_name")
+    phone     String?
+    bio       String?
+    avatarUrl String?   @map("avatar_url")
+    birthDate DateTime? @map("birth_date")
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+
+    user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    address Address?
+
+    @@map("profile")
+}
+
+model Address {
+    id        String  @id @default(uuid())
+    street    String
+    city      String
+    province  String
+    latitude  Float?
+    longitude Float?
+    zipCode   String  @map("zip_code")
+    country   String
+    profileId String  @unique @map("profile_id")
+    profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+    
+    @@map("addresses")
+}

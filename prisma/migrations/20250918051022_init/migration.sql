@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "public"."UserRole" AS ENUM ('PARENT', 'ADMIN');
+CREATE TYPE "public"."UserRole" AS ENUM ('PARENT', 'ADMINISTRATOR');
 
 -- CreateEnum
-CREATE TYPE "public"."ContentType" AS ENUM ('ARTICLE', 'VIDEO', 'GAME', 'QUIZ');
+CREATE TYPE "public"."ContentType" AS ENUM ('ARTICLE', 'QUIZ');
 
 -- CreateEnum
 CREATE TYPE "public"."DayOfWeek" AS ENUM ('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN');
