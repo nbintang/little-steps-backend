@@ -12,7 +12,9 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateProfileDto implements Omit<Prisma.ProfileCreateInput, "user"> {
+export class CreateProfileDto
+  implements Omit<Prisma.ProfileCreateInput, 'user'>
+{
   @IsString()
   @MinLength(8)
   @MaxLength(199)
@@ -21,11 +23,11 @@ export class CreateProfileDto implements Omit<Prisma.ProfileCreateInput, "user">
   @IsString()
   @IsOptional()
   bio?: string;
-  
+
   @IsUrl()
   @IsOptional()
   avatarUrl?: string;
-  
+
   @Type(() => Number)
   @IsInt()
   @Min(18)

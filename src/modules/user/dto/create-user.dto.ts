@@ -2,8 +2,8 @@ import { Prisma } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
+  IsNotEmpty,
   IsString,
-  Length,
   Matches,
   MaxLength,
   MinLength,
@@ -12,13 +12,15 @@ import {
 import { CreateAddressDto } from 'src/modules/address/dto/create-address.dto';
 import { CreateProfileDto } from 'src/modules/profile/dto/create-profile.dto';
 
-export class CreateUserDto implements Omit<Prisma.UserCreateInput, "profile"> {
+export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
   @IsEmail()
   @IsString()
+  @IsNotEmpty({ message: 'Email tidak boleh kosong' })
   email: string;
 
   @IsString()
-  @Length(8, 199)
+  @IsNotEmpty({ message: 'Name tidak boleh kosong' })
+  @MaxLength(199)
   name: string;
 
   @IsString()
@@ -32,9 +34,9 @@ export class CreateUserDto implements Omit<Prisma.UserCreateInput, "profile"> {
 
   @ValidateNested()
   @Type(() => CreateProfileDto)
-  profile: CreateProfileDto
+  profile: CreateProfileDto;
 
   @ValidateNested()
   @Type(() => CreateAddressDto)
-  address : CreateAddressDto
+  address: CreateAddressDto;
 }
