@@ -10,7 +10,8 @@ export const appConfig = registerAs('app', () => ({
 export const authConfig = registerAs('auth', () => ({
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-  jwtVerificationTokenSecret: process.env.JWT_VERIFICATION_TOKEN_SECRET,
+  jwtVerificationSecret: process.env.JWT_VERIFICATION_SECRET,
+  jwtTemporarySecret:process.env.JWT_TEMPORARY_SECRET,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   googleRefreshToken: process.env.GOOGLE_REFRESH_TOKEN,

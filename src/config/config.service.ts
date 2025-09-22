@@ -23,13 +23,17 @@ export class ConfigService {
   get jwt(): {
     accessSecret: string;
     refreshSecret: string;
-    verificationTokenSecret: string;
+    verificationSecret: string;
+    temporarySecret: string
   } {
     return {
       accessSecret: this.configService.get<string>('auth.jwtAccessSecret'),
       refreshSecret: this.configService.get<string>('auth.jwtRefreshSecret'),
-      verificationTokenSecret: this.configService.get<string>(
-        'auth.jwtVerificationTokenSecret',
+      verificationSecret: this.configService.get<string>(
+        'auth.jwtTemporarySecret',
+      ),
+      temporarySecret: this.configService.get<string>(
+        'auth.jwtTemporarySecret',
       ),
     };
   }
