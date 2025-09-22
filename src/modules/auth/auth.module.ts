@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
-import { AuthController } from './auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
@@ -12,6 +12,9 @@ import { MailerModule } from '../../common/mailer/mailer.module';
 import { AuthOtpService } from './services/auth-otp.service';
 import { ConfigModule } from '../../config/config.module';
 import { ConfigService } from '../../config/config.service';
+import { AuthGoogleService } from './services/auth-google.service';
+import { AuthOtpController } from './controllers/auth-otp.controller';
+import { AuthGoogleController } from './controllers/auth-google.controller';
 
 @Module({
   imports: [
@@ -31,12 +34,13 @@ import { ConfigService } from '../../config/config.service';
   providers: [
     ConfigService,
     AuthService,
+    AuthGoogleService,
     AuthOtpService,
     AccessControlService,
     AccessTokenStrategy,
     RefreshTokenStrategy,
     GoogleOauthStrategy,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, AuthOtpController, AuthGoogleController],
 })
 export class AuthModule {}

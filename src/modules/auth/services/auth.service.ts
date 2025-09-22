@@ -14,7 +14,12 @@ import { ConfigService } from '../../../config/config.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as argon2 from 'argon2';
 import { User } from '@prisma/client';
-import { GenerateTokenResponse } from '../interfaces/token-response.interface';
+import { AuthProvider } from '../enums/auth-provider.enum';
+
+export interface GenerateTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -96,8 +101,15 @@ export class AuthService {
   async login({ email, password }: { email: string; password: string }) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User is not registered');
+    const isNotLocalProvider = user.provider !== AuthProvider.LOCAL;
+    if (isNotLocalProvider) {
+      throw new UnauthorizedException(
+        'Your account has already being used on a different provider',
+      );
+    }
     const isPasswordValid = await this.compareHash(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
+
     return await this.generateJwtTokens({
       userId: user.id,
       email: user.email,

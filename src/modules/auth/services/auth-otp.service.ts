@@ -36,14 +36,14 @@ export class AuthOtpService {
 
   private generateVerificationToken(payload: { email: string }): string {
     return this.jwtService.sign(payload, {
-      secret: this.configService.jwt.verificationTokenSecret,
+      secret: this.configService.jwt.verificationSecret,
       expiresIn: '5m',
     });
   }
   public async decodeConfirmationToken(token: string) {
     try {
       const payload = this.jwtService.verify<UserJwtPayload>(token, {
-        secret: this.configService.jwt.verificationTokenSecret,
+        secret: this.configService.jwt.verificationSecret,
       });
 
       return {

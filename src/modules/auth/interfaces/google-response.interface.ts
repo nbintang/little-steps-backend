@@ -1,5 +1,7 @@
 export interface GoogleOauthUserResponse {
-  account_id: string;
-  email: string;
+  id: string;
   name: string;
+  avatarUrl: string;
+  email: string;
+  verified: boolean;
 }

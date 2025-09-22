@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '../../../config/config.service';
 import {
@@ -7,10 +7,16 @@ import {
   StrategyOptions,
   VerifyCallback,
 } from 'passport-google-oauth20';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { GoogleOauthUserResponse } from '../interfaces/google-response.interface';
 
 @Injectable()
 export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
+  ) {
     super({
       clientID: configService.google.clientId,
       clientSecret: configService.google.clientSecret,
@@ -24,15 +30,17 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     _refreshToken: string,
     profile: Profile,
     done: VerifyCallback,
-  ): Promise<any> {
-    const { id, emails, name } = profile;
-
-    const user = {
-      account_id: id,
-      email: emails?.[0].value,
-      name: name?.givenName,
+  ): Promise<void> {
+    const {
+      _json: { sub, given_name, family_name, picture, email, email_verified },
+    } = profile;
+    const user: GoogleOauthUserResponse = {
+      id: sub,
+      name: `${given_name} ${family_name}`,
+      avatarUrl: picture,
+      email,
+      verified: email_verified,
     };
-
     done(null, user);
   }
 }

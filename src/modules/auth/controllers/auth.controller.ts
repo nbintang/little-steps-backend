@@ -14,15 +14,15 @@ import {
   UseGuards,
   Get,
 } from '@nestjs/common';
-import { AuthService } from './services/auth.service';
+import { AuthService } from '../services/auth.service';
 
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { AuthOtpService } from './services/auth-otp.service';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { AuthOtpService } from '../services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
-import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -95,42 +95,6 @@ export class AuthController {
         refreshToken,
       },
     };
-  }
-
-  @Post('verify')
-  @HttpCode(HttpStatus.CREATED)
-  async verify(
-    @Query('token') token: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const { email } = await this.authOtpService.decodeConfirmationToken(token);
-    const { accessToken, refreshToken } =
-      await this.authService.verifyUser(email);
-    if (accessToken && refreshToken) {
-      const isProduction = process.env.NODE_ENV === 'production';
-      response.cookie(
-        'refreshToken',
-        refreshToken,
-        this.setCookieOptions(isProduction),
-      );
-    }
-    return {
-      data: {
-        accessToken,
-        refreshToken,
-      },
-    };
-  }
-
-  @Get('google-login')
-  @UseGuards(GoogleOauthGuard)
-  async googleAuthLogin() {}
-
-  @Get('google/callback')
-  @UseGuards(GoogleOauthGuard)
-  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
-    this.logger.log(request.user);
-    response.json({ data: request.user });
   }
 
   @UseGuards(RefreshTokenGuard)
