@@ -12,6 +12,7 @@ import {
   HttpStatus,
   Query,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 
@@ -21,6 +22,7 @@ import { AuthOtpService } from './services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -120,9 +122,20 @@ export class AuthController {
     };
   }
 
+  @Get('google-login')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthLogin() {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
+    this.logger.log(request.user);
+    response.json({ data: request.user });
+  }
+
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
-  async refreshTokens(@Req() request: Request) {
+  async refreshToken(@Req() request: Request) {
     const userId = request.user.sub;
     const tokens = await this.authService.refreshToken(userId);
     return {
