@@ -14,15 +14,12 @@ export class UserService {
         email,
         password,
         acceptedTerms,
-        acceptedAt: new Date(),
+        isRegistered: true,
+        provider: 'LOCAL',
+        providerId: null,
         profile: {
           create: {
             ...rest.profile,
-            address: {
-              create: {
-                ...rest.address,
-              },
-            },
           },
         },
       },
@@ -52,6 +49,11 @@ export class UserService {
     return user;
   }
 
+  async findUserByGoogleId(googleId: string) {
+    return await this.prisma.user.findFirst({
+      where: { providerId: googleId },
+    });
+  }
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
