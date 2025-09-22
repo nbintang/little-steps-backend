@@ -14,11 +14,7 @@ import { ConfigService } from '../../../config/config.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as argon2 from 'argon2';
 import { User } from '@prisma/client';
-
-export interface GenerateTokenResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+import { GenerateTokenResponse } from '../interfaces/token-response.interface';
 
 @Injectable()
 export class AuthService {
@@ -124,9 +120,7 @@ export class AuthService {
       verified: user.verified,
     });
   }
-  async refreshToken(
-    userId: string,
-  ): Promise<GenerateTokenResponse> {
+  async refreshToken(userId: string): Promise<GenerateTokenResponse> {
     const user = await this.userService.findUserById(userId);
     if (!user) throw new ForbiddenException('Access Denied');
     const { id, email, role, verified } = user;
@@ -140,7 +134,7 @@ export class AuthService {
   remove(id: number) {
     return `This action removes a #${id} auth`;
   }
-   async logout() {
+  async logout() {
     return {
       message: 'Successfully signed out',
     };

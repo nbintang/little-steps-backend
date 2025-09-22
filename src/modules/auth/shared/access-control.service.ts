@@ -12,10 +12,7 @@ export class AccessControlService {
   private priority: number = 1;
 
   constructor() {
-    this.buildRoles([
-      UserRole.PARENT,
-      UserRole.ADMINISTRATOR,
-    ]);
+    this.buildRoles([UserRole.PARENT, UserRole.ADMINISTRATOR]);
   }
   private buildRoles(roles: UserRole[]) {
     const hierarchy: Map<string, number> = new Map();

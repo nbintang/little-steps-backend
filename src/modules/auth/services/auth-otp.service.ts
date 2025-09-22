@@ -1,15 +1,15 @@
 import {
-  BadRequestException,
   HttpException,
   Inject,
   Injectable,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { ConfigService } from '../../../config/config.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { UserJwtPayload } from '../interfaces/user-payload.interface';
 
 interface UserInfo {
   name: string;
@@ -40,22 +40,24 @@ export class AuthOtpService {
       expiresIn: '5m',
     });
   }
-
   public async decodeConfirmationToken(token: string) {
     try {
-      const payload = this.jwtService.verify<any>(token, {
+      const payload = this.jwtService.verify<UserJwtPayload>(token, {
         secret: this.configService.jwt.verificationTokenSecret,
       });
+
       return {
         email: payload.email,
         role: payload.role,
         id: payload.sub,
       };
-    } catch (error) {
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Token expired');
+      }
       throw new UnauthorizedException('Invalid token');
     }
   }
-
   public async sendEmailConfirmation(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,

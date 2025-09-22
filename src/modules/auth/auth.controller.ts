@@ -1,9 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Param,
   Delete,
   Req,
   Res,
@@ -15,7 +13,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService, GenerateTokenResponse } from './services/auth.service';
+import { AuthService } from './services/auth.service';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -141,5 +139,4 @@ export class AuthController {
     response.clearCookie('refreshToken', this.setCookieOptions(isProduction));
     return await this.authService.logout();
   }
-
 }
