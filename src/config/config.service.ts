@@ -24,7 +24,7 @@ export class ConfigService {
     accessSecret: string;
     refreshSecret: string;
     verificationSecret: string;
-    temporarySecret: string
+    temporarySecret: string;
   } {
     return {
       accessSecret: this.configService.get<string>('auth.jwtAccessSecret'),

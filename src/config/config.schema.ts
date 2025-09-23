@@ -26,7 +26,7 @@ export const mailConfigSchema = z.object({
   EMAIL_FROM: z.string().regex(/^.+<[^<>@]+@[^<>@]+\.[^<>@]+>$/, {
     message: 'EMAIL_FROM harus dalam format "Name <email@domain.com>"',
   }),
-  EMAIL_SECURE: z.coerce.boolean()
+  EMAIL_SECURE: z.coerce.boolean(),
 });
 
 export const cloudinaryConfigSchema = z.object({
