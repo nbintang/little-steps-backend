@@ -3,13 +3,13 @@ import { Type } from 'class-transformer';
 import { MinAge } from '../../../common/decorators/min-age.decorator';
 import {
   IsDate,
-  IsInt,
+  IsLatitude,
+  IsLongitude,
   IsOptional,
   IsString,
   IsUrl,
   Matches,
   MaxLength,
-  Min,
   MinLength,
 } from 'class-validator';
 
@@ -19,7 +19,7 @@ export class CreateProfileDto
   @IsString()
   @MinLength(8)
   @MaxLength(199)
-  fullName: string;
+  fullName?: string;
 
   @IsString()
   @IsOptional()
@@ -33,10 +33,18 @@ export class CreateProfileDto
   @Matches(/^\+?\d{10,15}$/, {
     message: 'Phone harus berupa angka 10-15 digit, bisa diawali +',
   })
-  phone: string;
+  phone?: string;
 
   @Type(() => Date)
   @IsDate()
   @MinAge(18)
   birthDate?: string | Date;
+
+  @IsOptional()
+  @IsLatitude({ message: 'Latitude harus berupa koordinat valid' })
+  latitude?: number;
+
+  @IsOptional()
+  @IsLongitude({ message: 'Longitude harus berupa koordinat valid' })
+  longitude?: number;
 }
