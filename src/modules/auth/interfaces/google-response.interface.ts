@@ -1,5 +1,5 @@
 export interface GoogleOauthUserResponse {
-  id: string;
+  googleId: string;
   name: string;
   avatarUrl: string;
   email: string;

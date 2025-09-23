@@ -15,6 +15,7 @@ import { ConfigService } from '../../config/config.service';
 import { AuthGoogleService } from './services/auth-google.service';
 import { AuthOtpController } from './controllers/auth-otp.controller';
 import { AuthGoogleController } from './controllers/auth-google.controller';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthGoogleController } from './controllers/auth-google.controller';
     UserModule,
     ConfigModule,
     MailerModule,
+    ProfileModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

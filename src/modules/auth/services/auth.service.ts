@@ -15,11 +15,11 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as argon2 from 'argon2';
 import { User } from '@prisma/client';
 import { AuthProvider } from '../enums/auth-provider.enum';
-
-export interface GenerateTokenResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+import {
+  GenerateJwtParams,
+  GenerateJwtPayload,
+  GenerateTokensResponse,
+} from '../interfaces/generate-jwt.interface';
 
 @Injectable()
 export class AuthService {
@@ -32,9 +32,12 @@ export class AuthService {
   ) {}
   async validateRefreshToken(token: string): Promise<boolean> {
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.jwt.refreshSecret,
-      });
+      const payload = await this.jwtService.verifyAsync<GenerateJwtPayload>(
+        token,
+        {
+          secret: this.configService.jwt.refreshSecret,
+        },
+      );
       const user = await this.userService.findUserById(payload.sub);
       return !!user;
     } catch (error) {
@@ -59,16 +62,20 @@ export class AuthService {
     email,
     role,
     verified,
-  }: {
-    userId: string;
-    email: string;
-    role: string;
-    verified: boolean;
-  }): Promise<GenerateTokenResponse> {
+    provider,
+    is_registered,
+  }: GenerateJwtParams): Promise<GenerateTokensResponse> {
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync({ sub: userId, email, role, verified }),
+      this.jwtService.signAsync({
+        sub: userId,
+        email,
+        role,
+        verified,
+        provider,
+        is_registered,
+      }),
       this.jwtService.signAsync(
-        { sub: userId, email, role, verified },
+        { sub: userId, email, role, verified, provider, is_registered },
         {
           secret: this.configService.jwt.refreshSecret,
           expiresIn: '1d',
@@ -81,12 +88,16 @@ export class AuthService {
     };
   }
   async register(dto: RegisterDto): Promise<User> {
-    const existedUser = await this.userService.findUserById(dto.email);
-    this.logger.log(dto);
+    const existedUser = await this.userService.findUserByEmail(dto.email);
     if (existedUser) {
-      throw new BadRequestException(
-        'User already exist, please use another account',
-      );
+      if (existedUser.provider !== AuthProvider.LOCAL) {
+        throw new UnauthorizedException('Account used on different provider');
+      }
+      if (existedUser.isRegistered) {
+        throw new BadRequestException(
+          'Email is already registered, please use another email',
+        );
+      }
     }
     if (!dto.acceptedTerms) {
       throw new BadRequestException('Please accept our terms and condition');
@@ -109,12 +120,14 @@ export class AuthService {
     }
     const isPasswordValid = await this.compareHash(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
-
+    this.logger.log('user', user);
     return await this.generateJwtTokens({
       userId: user.id,
       email: user.email,
       role: user.role,
       verified: user.verified,
+      provider: AuthProvider.LOCAL,
+      is_registered: user.isRegistered,
     });
   }
 
@@ -130,9 +143,11 @@ export class AuthService {
       email: user.email,
       role: user.role,
       verified: user.verified,
+      provider: AuthProvider.LOCAL,
+      is_registered: user.isRegistered,
     });
   }
-  async refreshToken(userId: string): Promise<GenerateTokenResponse> {
+  async refreshToken(userId: string): Promise<GenerateTokensResponse> {
     const user = await this.userService.findUserById(userId);
     if (!user) throw new ForbiddenException('Access Denied');
     const { id, email, role, verified } = user;
@@ -141,6 +156,8 @@ export class AuthService {
       email,
       role,
       verified,
+      provider: AuthProvider.LOCAL,
+      is_registered: user.isRegistered,
     });
   }
   remove(id: number) {

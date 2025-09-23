@@ -21,7 +21,7 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: configService.google.clientId,
       clientSecret: configService.google.clientSecret,
       callbackURL: configService.google.callbackUrl,
-      scope: ['profile', 'email'],
+      scope: ['openid', 'profile', 'email'],
     } as StrategyOptions);
   }
 
@@ -34,9 +34,10 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     const {
       _json: { sub, given_name, family_name, picture, email, email_verified },
     } = profile;
+
     const user: GoogleOauthUserResponse = {
-      id: sub,
-      name: `${given_name} ${family_name}`,
+      googleId: sub,
+      name: `${given_name} ${family_name}`.trim(),
       avatarUrl: picture,
       email,
       verified: email_verified,

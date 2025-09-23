@@ -10,9 +10,7 @@ import {
   LoggerService,
   HttpCode,
   HttpStatus,
-  Query,
   UseGuards,
-  Get,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 
@@ -22,7 +20,6 @@ import { AuthOtpService } from '../services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
-import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +43,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     const newUser = await this.authService.register(dto);
-    if (newUser) await this.authOtpService.sendEmailConfirmation(newUser);
+    await this.authOtpService.sendEmailConfirmation(newUser);
     return {
       message:
         'Register successfully!, please check you email for verification',
