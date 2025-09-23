@@ -3,4 +3,5 @@ export class ServerResponseDto<T = Array<object> | object> {
   success: boolean;
   message: string;
   data?: T;
+  meta: Record<string, any>;
 }
