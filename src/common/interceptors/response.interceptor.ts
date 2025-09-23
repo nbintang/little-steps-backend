@@ -31,6 +31,7 @@ export class ResponseInterceptor implements NestInterceptor {
           statusCode: (result as any)?.statusCode ?? statusCode,
           success: (result as any)?.success ?? true,
           message: (result as any)?.message ?? 'Success',
+          meta: (result as any)?.meta ?? undefined,
         };
 
         const isObject = result !== null && typeof result === 'object';

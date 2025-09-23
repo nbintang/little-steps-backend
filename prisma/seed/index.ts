@@ -64,6 +64,7 @@ async function main() {
       role: 'ADMINISTRATOR',
       acceptedTerms: true,
       acceptedAt: new Date(),
+      isRegistered: true,
       profile: {
         create: {
           fullName: 'Administrator',
@@ -71,17 +72,8 @@ async function main() {
           bio: 'System administrator managing the platform',
           avatarUrl: faker.image.avatar(),
           birthDate: faker.date.birthdate({ min: 25, max: 45, mode: 'age' }),
-          address: {
-            create: {
-              street: faker.location.streetAddress(),
-              city: faker.location.city(),
-              province: faker.location.state(),
-              latitude: parseFloat(faker.location.latitude().toString()),
-              longitude: parseFloat(faker.location.longitude().toString()),
-              zipCode: faker.location.zipCode(),
-              country: 'Indonesia',
-            },
-          },
+          latitude: parseFloat(faker.location.latitude().toString()),
+          longitude: parseFloat(faker.location.longitude().toString()),
         },
       },
     },
@@ -99,6 +91,7 @@ async function main() {
         providerId: i % 3 === 0 ? faker.string.uuid() : null,
         role: 'PARENT',
         acceptedTerms: true,
+        isRegistered: true,
         acceptedAt: new Date(),
         verified: true,
         profile: {
@@ -108,17 +101,8 @@ async function main() {
             bio: faker.lorem.paragraph(),
             avatarUrl: faker.image.avatar(),
             birthDate: faker.date.birthdate({ min: 25, max: 45, mode: 'age' }),
-            address: {
-              create: {
-                street: faker.location.streetAddress(),
-                city: faker.location.city(),
-                province: faker.location.state(),
-                latitude: parseFloat(faker.location.latitude().toString()),
-                longitude: parseFloat(faker.location.longitude().toString()),
-                zipCode: faker.location.zipCode(),
-                country: 'Indonesia',
-              },
-            },
+            latitude: parseFloat(faker.location.latitude().toString()),
+            longitude: parseFloat(faker.location.longitude().toString()),
           },
         },
       },

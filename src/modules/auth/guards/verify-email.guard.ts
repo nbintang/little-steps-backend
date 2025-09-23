@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
-import { UserJwtPayload } from '../strategies/access-token.strategy';
+import { UserJwtPayload } from '../interfaces/user-payload.interface';
 
 @Injectable()
 export class VerifyEmailGuard implements CanActivate {

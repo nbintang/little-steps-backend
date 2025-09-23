@@ -1,9 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Param,
   Delete,
   Req,
   Res,
@@ -12,17 +10,16 @@ import {
   LoggerService,
   HttpCode,
   HttpStatus,
-  Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService, GenerateTokenResponse } from './services/auth.service';
+import { AuthService } from '../services/auth.service';
 
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { AuthOtpService } from './services/auth-otp.service';
+import { LoginDto } from '../dto/login.dto';
+import { RegisterDto } from '../dto/register.dto';
+import { AuthOtpService } from '../services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { RefreshTokenGuard } from '../guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +43,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     const newUser = await this.authService.register(dto);
-    if (newUser) await this.authOtpService.sendEmailConfirmation(newUser);
+    await this.authOtpService.sendEmailConfirmation(newUser);
     return {
       message:
         'Register successfully!, please check you email for verification',
@@ -97,34 +94,9 @@ export class AuthController {
     };
   }
 
-  @Post('verify')
-  @HttpCode(HttpStatus.CREATED)
-  async verify(
-    @Query('token') token: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const { email } = await this.authOtpService.decodeConfirmationToken(token);
-    const { accessToken, refreshToken } =
-      await this.authService.verifyUser(email);
-    if (accessToken && refreshToken) {
-      const isProduction = process.env.NODE_ENV === 'production';
-      response.cookie(
-        'refreshToken',
-        refreshToken,
-        this.setCookieOptions(isProduction),
-      );
-    }
-    return {
-      data: {
-        accessToken,
-        refreshToken,
-      },
-    };
-  }
-
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
-  async refreshTokens(@Req() request: Request) {
+  async refreshToken(@Req() request: Request) {
     const userId = request.user.sub;
     const tokens = await this.authService.refreshToken(userId);
     return {
@@ -141,5 +113,4 @@ export class AuthController {
     response.clearCookie('refreshToken', this.setCookieOptions(isProduction));
     return await this.authService.logout();
   }
-
 }

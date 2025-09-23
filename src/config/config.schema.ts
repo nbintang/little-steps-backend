@@ -10,7 +10,8 @@ export const appConfigSchema = z.object({
 export const authConfigSchema = z.object({
   JWT_ACCESS_SECRET: z.string().min(1),
   JWT_REFRESH_SECRET: z.string().min(1),
-  JWT_VERIFICATION_TOKEN_SECRET: z.string().min(1),
+  JWT_VERIFICATION_SECRET: z.string().min(1),
+  JWT_TEMPORARY_SECRET: z.string().min(1),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_REFRESH_TOKEN: z.string().min(1),
@@ -25,7 +26,7 @@ export const mailConfigSchema = z.object({
   EMAIL_FROM: z.string().regex(/^.+<[^<>@]+@[^<>@]+\.[^<>@]+>$/, {
     message: 'EMAIL_FROM harus dalam format "Name <email@domain.com>"',
   }),
-  EMAIL_SECURE: z.coerce.boolean()
+  EMAIL_SECURE: z.coerce.boolean(),
 });
 
 export const cloudinaryConfigSchema = z.object({

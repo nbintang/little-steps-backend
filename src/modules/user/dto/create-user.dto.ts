@@ -11,7 +11,6 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { CreateAddressDto } from 'src/modules/address/dto/create-address.dto';
 import { CreateProfileDto } from 'src/modules/profile/dto/create-profile.dto';
 
 export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
@@ -47,12 +46,4 @@ export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
     { message: 'Profile tidak boleh kosong dan harus berupa object' },
   )
   profile: CreateProfileDto;
-
-  @ValidateNested()
-  @Type(() => CreateAddressDto)
-  @IsNotEmptyObject(
-    { nullable: false },
-    { message: 'Address tidak boleh kosong dan harus berupa object' },
-  )
-  address: CreateAddressDto;
 }
