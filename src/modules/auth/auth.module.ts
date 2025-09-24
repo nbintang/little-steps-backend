@@ -16,6 +16,7 @@ import { AuthGoogleService } from './services/auth-google.service';
 import { AuthOtpController } from './controllers/auth-otp.controller';
 import { AuthGoogleController } from './controllers/auth-google.controller';
 import { ProfileModule } from '../profile/profile.module';
+import { AuthPasswordService } from './services/auth-password.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ProfileModule } from '../profile/profile.module';
   providers: [
     ConfigService,
     AuthService,
+    AuthPasswordService,
     AuthGoogleService,
     AuthOtpService,
     AccessControlService,

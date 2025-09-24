@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { GoogleOauthUserResponse } from '../auth/interfaces/google-response.interface';
-import { randomBytes } from 'crypto';
-import * as argon2 from 'argon2';
 import { AuthProvider } from '../auth/enums/auth-provider.enum';
 
 @Injectable()
@@ -59,8 +57,16 @@ export class UserService {
     });
   }
 
+  async updatePassword(id: string, hashedPassword: string) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+  }
+
   async createUserFromGoogleProvider(gUser: GoogleOauthUserResponse) {
-    const randomPass = await argon2.hash(randomBytes(12).toString('hex'));
     return await this.prisma.user.create({
       data: {
         email: gUser.email,
@@ -68,7 +74,6 @@ export class UserService {
         name: gUser.name,
         verified: gUser.verified,
         provider: AuthProvider.GOOGLE,
-        password: randomPass,
         isRegistered: false,
         acceptedTerms: true,
         acceptedAt: new Date(),

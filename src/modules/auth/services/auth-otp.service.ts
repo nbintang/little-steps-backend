@@ -1,15 +1,15 @@
 import {
+  BadRequestException,
   HttpException,
-  Inject,
   Injectable,
-  Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { MailerService } from 'src/common/mailer/mailer.service';
 import { ConfigService } from '../../../config/config.service';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { UserJwtPayload } from '../interfaces/user-payload.interface';
+import { UserService } from 'src/modules/user/user.service';
 
 interface UserInfo {
   name: string;
@@ -24,8 +24,7 @@ export class AuthOtpService {
     private mailerService: MailerService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private logger: Logger,
+    private userService: UserService,
   ) {
     const PROD_URL = this.configService.frontendUrl;
     this.frontendUrl =
@@ -34,15 +33,17 @@ export class AuthOtpService {
         : PROD_URL;
   }
 
-  private generateVerificationToken(payload: { email: string }): string {
-    return this.jwtService.sign(payload, {
+  private async generateVerificationToken(payload: {
+    email: string;
+  }): Promise<string> {
+    return await this.jwtService.signAsync(payload, {
       secret: this.configService.jwt.verificationSecret,
-      expiresIn: '5m',
+      expiresIn: '2m',
     });
   }
   public async decodeConfirmationToken(token: string) {
     try {
-      const payload = this.jwtService.verify<UserJwtPayload>(token, {
+      const payload = await this.jwtService.verifyAsync<UserJwtPayload>(token, {
         secret: this.configService.jwt.verificationSecret,
       });
 
@@ -105,5 +106,17 @@ export class AuthOtpService {
     if (!sendedEmail) {
       throw new HttpException('Something Went Wrong', 500);
     }
+  }
+
+  public async resendVerification(email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    if (user.verified) throw new BadRequestException('User already verified');
+    if (!user) throw new NotFoundException('User not found');
+    await this.sendEmailConfirmation({
+      ...user,
+    });
+    return {
+      message: 'Email sent successfully',
+    };
   }
 }
