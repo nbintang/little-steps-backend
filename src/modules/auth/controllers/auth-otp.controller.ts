@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -32,13 +31,8 @@ export class AuthOtpController {
     @Query('token') token: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    if (!token) {
-      throw new BadRequestException('Token is required');
-    }
-
-    const { email } = await this.authOtpService.decodeConfirmationToken(token);
     const { accessToken, refreshToken } =
-      await this.authService.verifyUser(email);
+      await this.authService.verifyUser(token);
 
     if (accessToken && refreshToken) {
       const isProduction = process.env.NODE_ENV === 'production';

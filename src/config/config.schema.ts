@@ -12,6 +12,7 @@ export const authConfigSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(1),
   JWT_VERIFICATION_SECRET: z.string().min(1),
   JWT_TEMPORARY_SECRET: z.string().min(1),
+  JWT_RESET_PASSWORD_SECRET: z.string().min(1),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_REFRESH_TOKEN: z.string().min(1),

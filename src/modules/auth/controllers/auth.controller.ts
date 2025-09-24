@@ -19,6 +19,9 @@ import { RegisterDto } from '../dto/register.dto';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { ProviderGuard } from '../guards/provider.guard';
+import { Provider } from '../decorators/provider.decorator';
+import { AuthProvider } from '../enums/auth-provider.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -38,6 +41,8 @@ export class AuthController {
   }
 
   @Post('register')
+  @Provider(AuthProvider.LOCAL)
+  @UseGuards(ProviderGuard)
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     return await this.authService.register(dto);
@@ -45,6 +50,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Provider(AuthProvider.LOCAL)
+  @UseGuards(ProviderGuard)
   async login(
     @Res({ passthrough: true }) response: Response,
     @Req() request: Request,

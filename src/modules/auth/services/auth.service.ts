@@ -85,15 +85,10 @@ export class AuthService {
   }
   async register(dto: RegisterDto) {
     const existedUser = await this.userService.findUserByEmail(dto.email);
-    if (existedUser) {
-      if (existedUser.provider !== AuthProvider.LOCAL) {
-        throw new UnauthorizedException('Account used on different provider');
-      }
-      if (existedUser.isRegistered) {
-        throw new BadRequestException(
-          'Email is already registered, please use another email',
-        );
-      }
+    if (existedUser && existedUser.isRegistered) {
+      throw new BadRequestException(
+        'Email is already registered, please use another email',
+      );
     }
     if (!dto.acceptedTerms) {
       throw new BadRequestException('Please accept our terms and condition');
@@ -113,12 +108,6 @@ export class AuthService {
   async login({ email, password }: { email: string; password: string }) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User is not registered');
-    const isNotLocalProvider = user.provider !== AuthProvider.LOCAL;
-    if (isNotLocalProvider) {
-      throw new UnauthorizedException(
-        'Your account has already being used on a different provider',
-      );
-    }
     const isPasswordValid = await this.compareHash(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
     this.logger.log('user', user);
@@ -132,7 +121,15 @@ export class AuthService {
     });
   }
 
-  async verifyUser(email: string) {
+  async verifyUser(token: string) {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+
+    const { email } = await this.authOtpService.decodeConfirmationToken({
+      token,
+      secret: this.configService.jwt.verificationSecret,
+    });
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new NotFoundException('User not found');
     if (user.verified) {

@@ -33,18 +33,31 @@ export class AuthOtpService {
         : PROD_URL;
   }
 
-  private async generateVerificationToken(payload: {
+  private async generateVerificationToken({
+    email,
+    secret,
+  }: {
     email: string;
+    secret: string;
   }): Promise<string> {
-    return await this.jwtService.signAsync(payload, {
-      secret: this.configService.jwt.verificationSecret,
-      expiresIn: '2m',
-    });
+    return await this.jwtService.signAsync(
+      { email },
+      {
+        secret,
+        expiresIn: '2m',
+      },
+    );
   }
-  public async decodeConfirmationToken(token: string) {
+  public async decodeConfirmationToken({
+    token,
+    secret,
+  }: {
+    token: string;
+    secret: string;
+  }) {
     try {
       const payload = await this.jwtService.verifyAsync<UserJwtPayload>(token, {
-        secret: this.configService.jwt.verificationSecret,
+        secret,
       });
 
       return {
@@ -62,6 +75,7 @@ export class AuthOtpService {
   public async sendEmailConfirmation(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,
+      secret: this.configService.jwt.verificationSecret,
     });
 
     const url = `${this.frontendUrl}/auth/verify?token=${token}`;
@@ -87,6 +101,7 @@ export class AuthOtpService {
   public async sendPasswordReset(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,
+      secret: this.configService.jwt.resetPasswordSecret,
     });
 
     const url = `${this.frontendUrl}/auth/reset-password?token=${token}`;

@@ -43,7 +43,10 @@ export class AuthPasswordService {
     token: string;
     newPassword: string;
   }) {
-    const { email } = await this.authOtpService.decodeConfirmationToken(token);
+    const { email } = await this.authOtpService.decodeConfirmationToken({
+      token,
+      secret: this.configService.jwt.resetPasswordSecret,
+    });
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new NotFoundException('User not found');
     const hashedPassword = await this.hashString(newPassword);
