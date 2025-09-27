@@ -164,7 +164,7 @@ async function main() {
   console.log('📚 Creating content...');
   const contents = [];
   const contentTypes: ContentType[] = ['ARTICLE', 'FICTION_STORY'];
-  const contentStatuses: ContentStatus[] = ['DRAFT', 'REVIEW', 'PUBLISHED'];
+  const contentStatuses: ContentStatus[] = ['DRAFT', 'PUBLISHED'];
   const languages: Language[] = ['ID', 'EN'];
   for (let i = 0; i < 20; i++) {
     const contentType = faker.helpers.arrayElement(contentTypes);
@@ -216,6 +216,7 @@ async function main() {
     const content = await prisma.content.create({
       data: {
         title: faker.lorem.sentence(),
+        slug: faker.lorem.slug({ min: 3, max: 5 }),
         type: contentType,
         contentJson,
         excerpt: faker.lorem.sentences(2),

@@ -1,7 +1,7 @@
 export class ServerResponseDto<T = Array<object> | object> {
-  statusCode: number;
-  success: boolean;
-  message: string;
+  statusCode?: number;
+  success?: boolean;
+  message?: string;
   data?: T;
-  meta: Record<string, any>;
+  meta?: Record<string, any>;
 }

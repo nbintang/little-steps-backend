@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."ContentStatus" AS ENUM ('DRAFT', 'REVIEW', 'PUBLISHED');
+CREATE TYPE "public"."ContentStatus" AS ENUM ('DRAFT',  'PUBLISHED');
 
 -- CreateEnum
 CREATE TYPE "public"."Language" AS ENUM ('ID', 'EN', 'OTHER');

@@ -9,8 +9,7 @@ enum ContentType {
 }
 
 enum ContentStatus {
-  DRAFT
-  REVIEW
+  DRAFT 
   PUBLISHED
 }
 

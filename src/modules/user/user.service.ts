@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
 import { GoogleOauthUserResponse } from '../auth/interfaces/google-response.interface';
 import { AuthProvider } from '../auth/enums/auth-provider.enum';
+import { PrismaService } from '../../common/prisma/prisma.service';
 
 @Injectable()
 export class UserService {

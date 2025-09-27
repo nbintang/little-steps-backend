@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ContentService } from './content.service';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
+import { ContentType } from './enums/content.enum';
+import { QueryContentDto } from './dto/query-content.dto';
 
 @Controller('content')
 export class ContentController {
@@ -17,12 +22,13 @@ export class ContentController {
 
   @Post()
   create(@Body() createContentDto: CreateContentDto) {
-    return this.contentService.create(createContentDto);
+    return this.contentService.createArticle(createContentDto);
   }
 
   @Get()
-  async findAll() {
-    return await this.contentService.findArticles();
+  @HttpCode(HttpStatus.OK)
+  async findContents(@Query() query: QueryContentDto) {
+    return await this.contentService.findContents(query);
   }
 
   @Get(':id')
