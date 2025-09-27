@@ -7,8 +7,8 @@ import { ConfigModule } from './config/config.module';
 import { MailerModule } from './common/mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { ProfileModule } from './modules/profile/profile.module'; 
-import { ArticleModule } from './modules/article/article.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { ContentModule } from './modules/content/content.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { ArticleModule } from './modules/article/article.module';
     AuthModule,
     UserModule,
     ProfileModule,
-    ArticleModule, 
+    ContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
