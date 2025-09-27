@@ -1,4 +1,10 @@
-import { ContentType, DayOfWeek, PrismaClient } from '@prisma/client';
+import {
+  ContentStatus,
+  ContentType,
+  DayOfWeek,
+  Language,
+  PrismaClient,
+} from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as argon2 from 'argon2';
 
@@ -157,28 +163,76 @@ async function main() {
   // Create Content
   console.log('📚 Creating content...');
   const contents = [];
-  const contentTypes = ['ARTICLE', 'FICTION_STORY'];
-
+  const contentTypes: ContentType[] = ['ARTICLE', 'FICTION_STORY'];
+  const contentStatuses: ContentStatus[] = ['DRAFT', 'REVIEW', 'PUBLISHED'];
+  const languages: Language[] = ['ID', 'EN'];
   for (let i = 0; i < 20; i++) {
     const contentType = faker.helpers.arrayElement(contentTypes);
     const randomUser = faker.helpers.arrayElement(users);
+    const status = faker.helpers.arrayElement(contentStatuses);
+    const language = faker.helpers.arrayElement(languages);
+
+    const contentJson =
+      contentType === 'ARTICLE'
+        ? {
+            type: 'doc',
+            content: [
+              {
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: faker.lorem.sentence() }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraph() }],
+              },
+            ],
+          }
+        : null;
+
+    const attachments =
+      contentType === 'ARTICLE'
+        ? [
+            {
+              type: 'PDF',
+              url: faker.internet.url() + '/file.pdf',
+              name: 'Attachment PDF',
+            },
+          ]
+        : [
+            {
+              type: 'VIDEO',
+              url: faker.internet.url() + '/video.mp4',
+              name: 'Video Story',
+            },
+          ];
+
+    const coverImage = faker.image.urlLoremFlickr({ category: 'nature' });
 
     const content = await prisma.content.create({
       data: {
         title: faker.lorem.sentence(),
-        type: contentType as ContentType,
-        body: contentType === 'ARTICLE' ? faker.lorem.paragraphs(3) : null,
-        url: contentType !== 'ARTICLE' ? faker.internet.url() : null,
+        type: contentType,
+        contentJson,
+        excerpt: faker.lorem.sentences(2),
+        coverImage,
+        attachments,
         targetAgeMin: faker.number.int({ min: 3, max: 8 }),
         targetAgeMax: faker.number.int({ min: 12, max: 17 }),
+        status,
+        language,
         createdBy: randomUser.id,
         isPublished: faker.datatype.boolean(0.8),
         isDeleted: faker.datatype.boolean(0.1),
       },
     });
+
     contents.push(content);
   }
-
   // Create Quizzes
   console.log('🎯 Creating quizzes...');
   const quizzes = [];

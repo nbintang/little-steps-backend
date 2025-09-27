@@ -8,6 +8,18 @@ enum ContentType {
   FICTION_STORY
 }
 
+enum ContentStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+}
+
+enum Language {
+  ID
+  EN
+  OTHER
+}
+
 enum DayOfWeek {
   MON
   TUE
