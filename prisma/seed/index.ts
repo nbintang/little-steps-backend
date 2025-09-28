@@ -227,8 +227,6 @@ async function main() {
         status,
         language,
         createdBy: randomUser.id,
-        isPublished: faker.datatype.boolean(0.8),
-        isDeleted: faker.datatype.boolean(0.1),
       },
     });
 

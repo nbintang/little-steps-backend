@@ -5,15 +5,13 @@ model Content {
   type         ContentType
   contentJson  Json?         @map("content_json")
   excerpt      String?
-  coverImage   String?
+  coverImage   String?       @map("cover_image")
   attachments  Json?
   targetAgeMin Int?          @map("target_age_min")
   targetAgeMax Int?          @map("target_age_max")
   status       ContentStatus @default(DRAFT)
   language     Language      @default(ID)
   createdBy    String        @map("created_by")
-  isPublished  Boolean       @default(false) @map("is_published")
-  isDeleted    Boolean       @default(false) @map("is_deleted")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
 
