@@ -4,8 +4,8 @@ import {
   IsOptional,
   IsEnum,
   IsInt,
-  Min, 
-  IsBoolean, 
+  Min,
+  IsBoolean,
   IsJSON,
   IsUrl,
 } from 'class-validator';
@@ -21,7 +21,7 @@ export class CreateContentDto
 
   @IsOptional()
   @IsJSON({ message: 'contentJson must be a valid JSON' })
-  contentJson?: any; 
+  contentJson?: any;
 
   @IsOptional()
   @IsString()

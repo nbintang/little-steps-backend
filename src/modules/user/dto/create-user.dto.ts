@@ -11,7 +11,7 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator'; 
+} from 'class-validator';
 
 export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
   @IsEmail()

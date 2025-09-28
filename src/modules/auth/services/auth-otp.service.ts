@@ -5,9 +5,9 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt'; 
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { ConfigService } from '../../../config/config.service';
-import { UserJwtPayload } from '../interfaces/user-payload.interface'; 
+import { UserJwtPayload } from '../interfaces/user-payload.interface';
 import { MailerService } from '../../../common/mailer/mailer.service';
 import { UserService } from '../../user/user.service';
 

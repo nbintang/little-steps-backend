@@ -9,6 +9,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ContentModule } from './modules/content/content.module';
+import { CloudinaryModule } from './common/cloudinary/cloudinary.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { ContentModule } from './modules/content/content.module';
     UserModule,
     ProfileModule,
     ContentModule,
+    CloudinaryModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
