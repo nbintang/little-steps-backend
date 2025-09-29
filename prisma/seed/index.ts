@@ -2,7 +2,6 @@ import {
   ContentStatus,
   ContentType,
   DayOfWeek,
-  Language,
   PrismaClient,
 } from '@prisma/client';
 import { faker } from '@faker-js/faker';
@@ -165,12 +164,10 @@ async function main() {
   const contents = [];
   const contentTypes: ContentType[] = ['ARTICLE', 'FICTION_STORY'];
   const contentStatuses: ContentStatus[] = ['DRAFT', 'PUBLISHED'];
-  const languages: Language[] = ['ID', 'EN'];
   for (let i = 0; i < 20; i++) {
     const contentType = faker.helpers.arrayElement(contentTypes);
     const randomUser = faker.helpers.arrayElement(users);
     const status = faker.helpers.arrayElement(contentStatuses);
-    const language = faker.helpers.arrayElement(languages);
 
     const contentJson =
       contentType === 'ARTICLE'
@@ -194,23 +191,6 @@ async function main() {
           }
         : null;
 
-    const attachments =
-      contentType === 'ARTICLE'
-        ? [
-            {
-              type: 'PDF',
-              url: faker.internet.url() + '/file.pdf',
-              name: 'Attachment PDF',
-            },
-          ]
-        : [
-            {
-              type: 'VIDEO',
-              url: faker.internet.url() + '/video.mp4',
-              name: 'Video Story',
-            },
-          ];
-
     const coverImage = faker.image.urlLoremFlickr({ category: 'nature' });
 
     const content = await prisma.content.create({
@@ -221,11 +201,7 @@ async function main() {
         contentJson,
         excerpt: faker.lorem.sentences(2),
         coverImage,
-        attachments,
-        targetAgeMin: faker.number.int({ min: 3, max: 8 }),
-        targetAgeMax: faker.number.int({ min: 12, max: 17 }),
         status,
-        language,
         createdBy: randomUser.id,
       },
     });

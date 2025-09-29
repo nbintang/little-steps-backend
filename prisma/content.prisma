@@ -1,22 +1,18 @@
 model Content {
-  id           String        @id @default(uuid())
-  title        String
-  slug         String        @unique
-  type         ContentType
-  contentJson  Json?         @map("content_json")
-  excerpt      String?
-  coverImage   String?       @map("cover_image")
-  attachments  Json?
-  targetAgeMin Int?          @map("target_age_min")
-  targetAgeMax Int?          @map("target_age_max")
-  status       ContentStatus @default(DRAFT)
-  language     Language      @default(ID)
-  createdBy    String        @map("created_by")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
-
-  author   User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  progress Progress[]
+  id          String        @id @default(uuid())
+  title       String
+  slug        String        @unique
+  type        ContentType
+  contentJson Json?         @map("content_json")
+  excerpt     String?
+  coverImage  String?       @map("cover_image")
+  status      ContentStatus @default(DRAFT)
+  isEdited    Boolean?
+  createdBy   String        @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  author      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  progress    Progress[]
 
   @@map("contents")
 }

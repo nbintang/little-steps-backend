@@ -13,11 +13,6 @@ enum ContentStatus {
   PUBLISHED
 }
 
-enum Language {
-  ID
-  EN
-  OTHER
-}
 
 enum DayOfWeek {
   MON
