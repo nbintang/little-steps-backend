@@ -10,7 +10,8 @@ export class QueryMediaDto {
   existedUrl?: string;
 
   @IsEnum(MediaFolder, {
-    message: 'folder must be one of "lokerin_image" or "lokerin_cv"',
+    message:
+      'folder must be one of "little_steps_files" or "little_steps_images"',
   })
   folder: MediaFolder;
 }

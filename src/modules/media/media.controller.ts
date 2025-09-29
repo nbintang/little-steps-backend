@@ -14,10 +14,10 @@ import { QueryMediaDto } from './dto/query-media.dto';
 import { MediaParseDocPipe } from './pipes/media-parse-doc.pipe';
 import { Response } from 'express';
 
-@Controller('upload')
+@Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
-  @Post('/image')
+  @Post('/image/upload')
   @UseInterceptors(
     FileInterceptor('image', {
       limits: { fileSize: 5 * 1024 * 1024 },
@@ -30,7 +30,7 @@ export class MediaController {
     return await this.mediaService.uploadImage(file, query);
   }
 
-  @Post('/document')
+  @Post('/document/upload')
   @UseInterceptors(
     FileInterceptor('document', {
       limits: { fileSize: 10 * 1024 * 1024 },
@@ -46,11 +46,11 @@ export class MediaController {
   @Get('/document/download')
   async downloadDocument(
     @Query('publicId') publicId: string,
-    @Res() res: Response,
+    @Res() response: Response,
   ) {
     const axiosResp = await this.mediaService.downloadDocument(publicId);
     const buffer = Buffer.from(axiosResp.data);
-    res
+    response
       .status(200)
       .set({
         'Content-Type': 'application/pdf',

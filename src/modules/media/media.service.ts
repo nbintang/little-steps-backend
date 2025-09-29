@@ -3,10 +3,12 @@ import { CloudinaryService } from '../../common/cloudinary/cloudinary.service';
 import { QueryMediaDto } from './dto/query-media.dto';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { ConfigService } from '../../config/config.service';
 
 @Injectable()
 export class MediaService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly httpService: HttpService,
   ) {}
@@ -16,14 +18,15 @@ export class MediaService {
     const exitedPublicId = existedUrl
       ? this.cloudinaryService.extractPublicId(existedUrl)
       : undefined;
-    const { secure_url, public_id, created_at } =
+    const { secure_url, public_id, created_at, http_code } =
       await this.cloudinaryService.uploadFile({
         file,
         folder,
         public_id: exitedPublicId,
       });
     return {
-      message: `Image uploaded to ${folder} successfully`,
+      statusCode: http_code,
+      message: `Image uploaded to ${folder} `,
       data: {
         secureUrl: secure_url,
         publicId: public_id,
@@ -43,8 +46,8 @@ export class MediaService {
       public_id: exitedPublicId,
     });
     const downloadEndpoint =
-      `${process.env.PROD_BACKEND_URL || 'http://localhost:3000'}` +
-      `/api/upload/document/download?publicId=${encodeURIComponent(public_id)}`;
+      `${this.configService.backendUrl || 'http://localhost:3000'}` +
+      `/api/media/document/download?publicId=${encodeURIComponent(public_id)}`;
     return {
       message: `Document uploaded to ${folder} successfully`,
       data: {
