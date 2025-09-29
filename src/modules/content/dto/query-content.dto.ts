@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ContentType, ContentStatus, Language } from '../enums/content.enum';
+import { ContentType, ContentStatus } from '../enums/content.enum';
 
 export class QueryContentDto {
   @IsOptional()
@@ -14,11 +14,6 @@ export class QueryContentDto {
   })
   @Transform(({ value }) => value?.toUpperCase())
   status?: ContentStatus;
-
-  @IsOptional()
-  @IsEnum(Language, { message: 'language must be ID, EN, or OTHER' })
-  @Transform(({ value }) => value?.toUpperCase())
-  language?: Language;
 
   @IsOptional()
   @IsString()
