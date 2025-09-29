@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { UserService } from '../user/user.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class ProfileService {
@@ -22,12 +23,63 @@ export class ProfileService {
   async findProfile(userId: string) {
     const profile = await this.prisma.profile.findUnique({
       where: { userId },
+      select: {
+        id: true,
+        fullName: true,
+        bio: true,
+        birthDate: true,
+        avatarUrl: true,
+        latitude: true,
+        longitude: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
     return { data: profile };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} profile`;
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const { name, ...profileData } = dto;
+    const profile = await this.prisma.profile.update({
+      where: { userId },
+      data: {
+        ...profileData,
+        user: {
+          update: {
+            ...(name && { name }),
+          },
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        bio: true,
+        birthDate: true,
+        avatarUrl: true,
+        latitude: true,
+        longitude: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return { data: profile };
   }
 
   remove(id: number) {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Patch, Body } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UserRole } from '../user/enums/user-role.enum';
@@ -7,26 +7,26 @@ import { RoleGuard } from '../auth/guards/role.guard';
 import { Request } from 'express';
 import { VerifyEmailGuard } from '../auth/guards/verify-email.guard';
 import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('profile')
-@UseGuards(AccessTokenGuard)
+@Roles(UserRole.ADMINISTRATOR, UserRole.PARENT)
+@UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
   @Get('me')
-  @Roles(UserRole.ADMINISTRATOR, UserRole.PARENT)
-  @UseGuards(RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
+  @UseGuards()
   async getProfile(@Req() request: Request) {
     const userId = request.user.sub;
     return await this.profileService.findProfile(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profileService.remove(+id);
+  @Patch('me')
+  async updateProfile(
+    @Req() request: Request,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    const userId = request.user.sub;
+    return await this.profileService.updateProfile(userId, updateProfileDto);
   }
 }
