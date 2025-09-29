@@ -5,7 +5,7 @@ import { Readable } from 'stream';
 import {
   CloudinaryResponse,
   CloudinaryUploadOptions,
-} from './interfaces/cloudinary.interface';
+} from './cloudinary.interface';
 
 @Injectable()
 export class CloudinaryService {

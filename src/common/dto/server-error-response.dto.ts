@@ -3,4 +3,5 @@ export class ServerErrorResponseDto {
   message: string;
   success: false;
   errorMessages?: Array<{ field: any; message: unknown }>;
+  timestamp: string;
 }

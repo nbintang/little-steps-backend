@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
-import { ConfigService } from '../../../config/config.service';
+import { ConfigService } from '../../config/config.service';
 
 export const CloudinaryProvider: Provider = {
   provide: 'CLOUDINARY',
