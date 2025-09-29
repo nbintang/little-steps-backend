@@ -11,6 +11,9 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { ContentModule } from './modules/content/content.module';
 import { CloudinaryModule } from './common/cloudinary/cloudinary.module';
 import { MediaModule } from './modules/media/media.module';
+import { ParentModule } from './modules/parent/parent.module';
+import { QuizModule } from './modules/quiz/quiz.module';
+import { ForumModule } from './modules/forum/forum.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { MediaModule } from './modules/media/media.module';
     ContentModule,
     CloudinaryModule,
     MediaModule,
+    ParentModule,
+    QuizModule,
+    ForumModule,
   ],
   controllers: [AppController],
   providers: [AppService],
