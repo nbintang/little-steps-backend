@@ -1,4 +1,10 @@
-import { ContentType, DayOfWeek, PrismaClient } from '@prisma/client';
+import {
+  ChildGender,
+  ContentStatus,
+  ContentType,
+  DayOfWeek,
+  PrismaClient,
+} from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as argon2 from 'argon2';
 
@@ -113,6 +119,7 @@ async function main() {
   // Create Child Profiles for Parent users (skip admin)
   console.log('👶 Creating child profiles...');
   const childProfiles = [];
+  const childGender: ChildGender[] = ['MALE', 'FEMALE'];
   const parentUsers = users.filter((user) => user.role === 'PARENT');
 
   for (const parent of parentUsers) {
@@ -125,6 +132,7 @@ async function main() {
           name: faker.person.firstName(),
           birthDate: faker.date.birthdate({ min: 3, max: 17, mode: 'age' }),
           avatarUrl: faker.image.avatar(),
+          gender: faker.helpers.arrayElement(childGender),
         },
       });
       childProfiles.push(childProfile);
@@ -157,28 +165,52 @@ async function main() {
   // Create Content
   console.log('📚 Creating content...');
   const contents = [];
-  const contentTypes = ['ARTICLE', 'FICTION_STORY'];
-
+  const contentTypes: ContentType[] = ['ARTICLE', 'FICTION_STORY'];
+  const contentStatuses: ContentStatus[] = ['DRAFT', 'PUBLISHED'];
   for (let i = 0; i < 20; i++) {
     const contentType = faker.helpers.arrayElement(contentTypes);
     const randomUser = faker.helpers.arrayElement(users);
+    const status = faker.helpers.arrayElement(contentStatuses);
+
+    const contentJson =
+      contentType === 'ARTICLE'
+        ? {
+            type: 'doc',
+            content: [
+              {
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: faker.lorem.sentence() }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraph() }],
+              },
+            ],
+          }
+        : null;
+
+    const coverImage = faker.image.urlLoremFlickr({ category: 'nature' });
 
     const content = await prisma.content.create({
       data: {
         title: faker.lorem.sentence(),
-        type: contentType as ContentType,
-        body: contentType === 'ARTICLE' ? faker.lorem.paragraphs(3) : null,
-        url: contentType !== 'ARTICLE' ? faker.internet.url() : null,
-        targetAgeMin: faker.number.int({ min: 3, max: 8 }),
-        targetAgeMax: faker.number.int({ min: 12, max: 17 }),
+        slug: faker.lorem.slug({ min: 3, max: 5 }),
+        type: contentType,
+        contentJson,
+        excerpt: faker.lorem.sentences(2),
+        coverImage,
+        status,
         createdBy: randomUser.id,
-        isPublished: faker.datatype.boolean(0.8),
-        isDeleted: faker.datatype.boolean(0.1),
       },
     });
+
     contents.push(content);
   }
-
   // Create Quizzes
   console.log('🎯 Creating quizzes...');
   const quizzes = [];
@@ -190,10 +222,7 @@ async function main() {
       data: {
         title: `${faker.lorem.words(3)} Quiz`,
         description: faker.lorem.sentence(),
-        targetAgeMin: faker.number.int({ min: 3, max: 8 }),
-        targetAgeMax: faker.number.int({ min: 12, max: 17 }),
         createdBy: randomUser.id,
-        isDeleted: faker.datatype.boolean(0.05),
       },
     });
     quizzes.push(quiz);
@@ -208,8 +237,20 @@ async function main() {
       const question = await prisma.question.create({
         data: {
           quizId: quiz.id,
-          text: faker.lorem.sentence() + '?',
-          isDeleted: faker.datatype.boolean(0.05),
+          questionJson: {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: faker.lorem.sentence(),
+                  },
+                ],
+              },
+            ],
+          },
         },
       });
 
@@ -227,7 +268,6 @@ async function main() {
             questionId: question.id,
             text: answerData.text,
             isCorrect: answerData.isCorrect,
-            isDeleted: faker.datatype.boolean(0.02),
           },
         });
       }

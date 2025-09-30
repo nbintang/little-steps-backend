@@ -7,7 +7,15 @@ import { ConfigModule } from './config/config.module';
 import { MailerModule } from './common/mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { ProfileModule } from './modules/profile/profile.module'; 
+import { ProfileModule } from './modules/profile/profile.module';
+import { ContentModule } from './modules/content/content.module';
+import { CloudinaryModule } from './common/cloudinary/cloudinary.module';
+import { MediaModule } from './modules/media/media.module';
+import { ParentModule } from './modules/parent/parent.module';
+import { QuizModule } from './modules/quiz/quiz.module';
+import { ForumModule } from './modules/forum/forum.module';
+import { ChildModule } from './modules/child/child.module';
+import { ParentalControlModule } from './modules/parental-control/parental-control.module';
 
 @Module({
   imports: [
@@ -17,7 +25,15 @@ import { ProfileModule } from './modules/profile/profile.module';
     MailerModule,
     AuthModule,
     UserModule,
-    ProfileModule, 
+    ProfileModule,
+    ContentModule,
+    CloudinaryModule,
+    MediaModule,
+    ParentModule,
+    QuizModule,
+    ForumModule,
+    ChildModule,
+    ParentalControlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

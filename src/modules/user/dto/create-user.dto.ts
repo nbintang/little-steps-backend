@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Type } from 'class-transformer';
+import { CreateProfileDto } from '../../profile/dto/create-profile.dto';
 import {
   IsBoolean,
   IsEmail,
@@ -11,7 +12,6 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { CreateProfileDto } from 'src/modules/profile/dto/create-profile.dto';
 
 export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
   @IsEmail()

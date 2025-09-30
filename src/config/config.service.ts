@@ -25,6 +25,7 @@ export class ConfigService {
     refreshSecret: string;
     verificationSecret: string;
     temporarySecret: string;
+    resetPasswordSecret: string;
   } {
     return {
       accessSecret: this.configService.get<string>('auth.jwtAccessSecret'),
@@ -34,6 +35,9 @@ export class ConfigService {
       ),
       temporarySecret: this.configService.get<string>(
         'auth.jwtTemporarySecret',
+      ),
+      resetPasswordSecret: this.configService.get<string>(
+        'auth.jwtResetPasswordSecret',
       ),
     };
   }

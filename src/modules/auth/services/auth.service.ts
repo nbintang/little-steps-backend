@@ -13,13 +13,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '../../../config/config.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as argon2 from 'argon2';
-import { User } from '@prisma/client';
 import { AuthProvider } from '../enums/auth-provider.enum';
 import {
   GenerateJwtParams,
   GenerateJwtPayload,
   GenerateTokensResponse,
 } from '../interfaces/generate-jwt.interface';
+import { AuthOtpService } from './auth-otp.service';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +27,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly authOtpService: AuthOtpService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private logger: LoggerService,
   ) {}
@@ -48,11 +49,6 @@ export class AuthService {
   private hashString(data: string) {
     return argon2.hash(data);
   }
-
-  private decodeToken(token: string) {
-    return this.jwtService.decode(token);
-  }
-
   private compareHash(plainText: string, hash: string) {
     return argon2.verify(hash, plainText);
   }
@@ -87,37 +83,31 @@ export class AuthService {
       refreshToken,
     };
   }
-  async register(dto: RegisterDto): Promise<User> {
+  async register(dto: RegisterDto) {
     const existedUser = await this.userService.findUserByEmail(dto.email);
-    if (existedUser) {
-      if (existedUser.provider !== AuthProvider.LOCAL) {
-        throw new UnauthorizedException('Account used on different provider');
-      }
-      if (existedUser.isRegistered) {
-        throw new BadRequestException(
-          'Email is already registered, please use another email',
-        );
-      }
+    if (existedUser && existedUser.isRegistered) {
+      throw new BadRequestException(
+        'Email is already registered, please use another email',
+      );
     }
     if (!dto.acceptedTerms) {
       throw new BadRequestException('Please accept our terms and condition');
     }
     const hashPassword = await this.hashString(dto.password);
-    return await this.userService.createNewUser({
+    const newUser = await this.userService.createNewUser({
       ...dto,
       password: hashPassword,
     });
+    await this.authOtpService.sendEmailConfirmation(newUser);
+    return {
+      message:
+        'Register successfully!, please check you email for verification',
+    };
   }
 
   async login({ email, password }: { email: string; password: string }) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User is not registered');
-    const isNotLocalProvider = user.provider !== AuthProvider.LOCAL;
-    if (isNotLocalProvider) {
-      throw new UnauthorizedException(
-        'Your account has already being used on a different provider',
-      );
-    }
     const isPasswordValid = await this.compareHash(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
     this.logger.log('user', user);
@@ -131,7 +121,15 @@ export class AuthService {
     });
   }
 
-  async verifyUser(email: string) {
+  async verifyUser(token: string) {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+
+    const { email } = await this.authOtpService.decodeConfirmationToken({
+      token,
+      secret: this.configService.jwt.verificationSecret,
+    });
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new NotFoundException('User not found');
     if (user.verified) {

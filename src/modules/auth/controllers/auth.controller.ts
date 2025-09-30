@@ -16,16 +16,17 @@ import { AuthService } from '../services/auth.service';
 
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
-import { AuthOtpService } from '../services/auth-otp.service';
 import { CookieOptions, Request, Response } from 'express';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { ProviderGuard } from '../guards/provider.guard';
+import { Provider } from '../decorators/provider.decorator';
+import { AuthProvider } from '../enums/auth-provider.enum';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly authOtpService: AuthOtpService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: LoggerService,
   ) {}
@@ -40,18 +41,17 @@ export class AuthController {
   }
 
   @Post('register')
+  @Provider(AuthProvider.LOCAL)
+  @UseGuards(ProviderGuard)
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
-    const newUser = await this.authService.register(dto);
-    await this.authOtpService.sendEmailConfirmation(newUser);
-    return {
-      message:
-        'Register successfully!, please check you email for verification',
-    };
+    return await this.authService.register(dto);
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
+  @Provider(AuthProvider.LOCAL)
+  @UseGuards(ProviderGuard)
   async login(
     @Res({ passthrough: true }) response: Response,
     @Req() request: Request,
@@ -95,6 +95,7 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
   async refreshToken(@Req() request: Request) {
     const userId = request.user.sub;
@@ -108,6 +109,7 @@ export class AuthController {
   }
 
   @Delete('logout')
+  @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) response: Response) {
     const isProduction = process.env.NODE_ENV === 'production';
     response.clearCookie('refreshToken', this.setCookieOptions(isProduction));

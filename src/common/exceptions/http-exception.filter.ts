@@ -69,6 +69,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         success: false,
         message: 'Validation failed',
         errorMessages: formatted,
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -80,6 +81,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         statusCode: HttpStatus.UNAUTHORIZED,
         success: false,
         message: exception.message || 'Unauthorized',
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -104,6 +106,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       statusCode: status,
       success: false,
       message,
+      timestamp: new Date().toISOString(),
     });
   }
 }

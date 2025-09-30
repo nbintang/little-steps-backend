@@ -1,15 +1,15 @@
 import {
+  BadRequestException,
   HttpException,
-  Inject,
   Injectable,
-  Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { MailerService } from 'src/common/mailer/mailer.service';
 import { ConfigService } from '../../../config/config.service';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { UserJwtPayload } from '../interfaces/user-payload.interface';
+import { MailerService } from '../../../common/mailer/mailer.service';
+import { UserService } from '../../user/user.service';
 
 interface UserInfo {
   name: string;
@@ -24,8 +24,7 @@ export class AuthOtpService {
     private mailerService: MailerService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private logger: Logger,
+    private userService: UserService,
   ) {
     const PROD_URL = this.configService.frontendUrl;
     this.frontendUrl =
@@ -34,16 +33,31 @@ export class AuthOtpService {
         : PROD_URL;
   }
 
-  private generateVerificationToken(payload: { email: string }): string {
-    return this.jwtService.sign(payload, {
-      secret: this.configService.jwt.verificationSecret,
-      expiresIn: '5m',
-    });
+  private async generateVerificationToken({
+    email,
+    secret,
+  }: {
+    email: string;
+    secret: string;
+  }): Promise<string> {
+    return await this.jwtService.signAsync(
+      { email },
+      {
+        secret,
+        expiresIn: '2m',
+      },
+    );
   }
-  public async decodeConfirmationToken(token: string) {
+  public async decodeConfirmationToken({
+    token,
+    secret,
+  }: {
+    token: string;
+    secret: string;
+  }) {
     try {
-      const payload = this.jwtService.verify<UserJwtPayload>(token, {
-        secret: this.configService.jwt.verificationSecret,
+      const payload = await this.jwtService.verifyAsync<UserJwtPayload>(token, {
+        secret,
       });
 
       return {
@@ -61,6 +75,7 @@ export class AuthOtpService {
   public async sendEmailConfirmation(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,
+      secret: this.configService.jwt.verificationSecret,
     });
 
     const url = `${this.frontendUrl}/auth/verify?token=${token}`;
@@ -86,6 +101,7 @@ export class AuthOtpService {
   public async sendPasswordReset(userInfo: UserInfo) {
     const token = this.generateVerificationToken({
       email: userInfo.email,
+      secret: this.configService.jwt.resetPasswordSecret,
     });
 
     const url = `${this.frontendUrl}/auth/reset-password?token=${token}`;
@@ -105,5 +121,17 @@ export class AuthOtpService {
     if (!sendedEmail) {
       throw new HttpException('Something Went Wrong', 500);
     }
+  }
+
+  public async resendVerification(email: string) {
+    const user = await this.userService.findUserByEmail(email);
+    if (user.verified) throw new BadRequestException('User already verified');
+    if (!user) throw new NotFoundException('User not found');
+    await this.sendEmailConfirmation({
+      ...user,
+    });
+    return {
+      message: 'Email sent successfully',
+    };
   }
 }

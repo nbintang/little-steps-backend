@@ -16,6 +16,8 @@ import { AuthGoogleService } from './services/auth-google.service';
 import { AuthOtpController } from './controllers/auth-otp.controller';
 import { AuthGoogleController } from './controllers/auth-google.controller';
 import { ProfileModule } from '../profile/profile.module';
+import { AuthPasswordService } from './services/auth-password.service';
+import { AuthPasswordController } from './controllers/auth-password.controller';
 
 @Module({
   imports: [
@@ -36,6 +38,7 @@ import { ProfileModule } from '../profile/profile.module';
   providers: [
     ConfigService,
     AuthService,
+    AuthPasswordService,
     AuthGoogleService,
     AuthOtpService,
     AccessControlService,
@@ -43,6 +46,11 @@ import { ProfileModule } from '../profile/profile.module';
     RefreshTokenStrategy,
     GoogleOauthStrategy,
   ],
-  controllers: [AuthController, AuthOtpController, AuthGoogleController],
+  controllers: [
+    AuthController,
+    AuthOtpController,
+    AuthGoogleController,
+    AuthPasswordController,
+  ],
 })
 export class AuthModule {}

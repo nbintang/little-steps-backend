@@ -8,7 +8,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ConfigService } from '../../../config/config.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service';
-import * as argon2 from 'argon2';
 import { AuthProvider } from '../enums/auth-provider.enum';
 import { User } from '@prisma/client';
 import {
@@ -26,9 +25,6 @@ export class AuthGoogleService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private logger: LoggerService,
   ) {}
-  private hashString(data: string) {
-    return argon2.hash(data);
-  }
 
   private async generateJwtTokens({
     userId,

@@ -4,8 +4,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
-  LoggerService,
   Post,
   Query,
   Req,
@@ -14,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 import { CookieOptions, Request, Response } from 'express';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GoogleOauthUserResponse } from '../interfaces/google-response.interface';
 import { UserService } from '../../user/user.service';
 import { AuthGoogleService } from '../services/auth-google.service';
@@ -29,8 +26,6 @@ export class AuthGoogleController {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly profileService: ProfileService,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: LoggerService,
   ) {}
   private setCookieOptions(isProduction: boolean): CookieOptions {
     return {
@@ -55,6 +50,7 @@ export class AuthGoogleController {
     if (user && user.isRegistered) {
       const { accessToken, refreshToken } =
         await this.authGoogleService.googleLogin(user);
+
       if (accessToken && refreshToken) {
         const isProduction = process.env.NODE_ENV === 'production';
         response.cookie(
@@ -65,7 +61,7 @@ export class AuthGoogleController {
       }
 
       return response.redirect(
-        `${this.configService.frontendUrl}/dashboard?access=${accessToken}`,
+        `${this.configService.frontendUrl}/login/success?access-token=${accessToken}`,
       );
     }
 
@@ -74,17 +70,19 @@ export class AuthGoogleController {
     }
     const tempToken = await this.authGoogleService.generateTemporaryToken(user);
     return response.redirect(
-      `${this.configService.frontendUrl}/complete-registration?token=${tempToken}`,
+      `${this.configService.frontendUrl}/complete-registration?oauth-token=${tempToken}`,
     );
   }
 
   @Post('complete-registration')
+  @HttpCode(HttpStatus.OK)
   async completeRegistration(
     @Body() dto: GoogleRegisterDto,
-    @Query('token') token: string,
+    @Query('oauth-token') oauthToken: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const payload = await this.authGoogleService.verifyTemporaryToken(token);
+    const payload =
+      await this.authGoogleService.verifyTemporaryToken(oauthToken);
     const updatedUserStatus = await this.userService.updateUserRegistration(
       payload.sub,
     );
