@@ -14,6 +14,8 @@ import { MediaModule } from './modules/media/media.module';
 import { ParentModule } from './modules/parent/parent.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { ForumModule } from './modules/forum/forum.module';
+import { ChildModule } from './modules/child/child.module';
+import { ParentalControlModule } from './modules/parental-control/parental-control.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { ForumModule } from './modules/forum/forum.module';
     ParentModule,
     QuizModule,
     ForumModule,
+    ChildModule,
+    ParentalControlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

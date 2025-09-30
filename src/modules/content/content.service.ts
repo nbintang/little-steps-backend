@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateContentDto } from '../dto/create-content.dto';
-import { UpdateContentDto } from '../dto/update-content.dto';
-import { PrismaService } from '../../../common/prisma/prisma.service';
-import { QueryContentDto } from '../dto/query-content.dto';
+import { CreateContentDto } from './dto/create-content.dto';
+import { UpdateContentDto } from './dto/update-content.dto';
+import { PrismaService } from '../../common/prisma/prisma.service';
+import { QueryContentDto } from './dto/query-content.dto';
 import { ContentStatus, Prisma } from '@prisma/client';
-import { ServerResponseDto } from '../../../common/dto/server-response.dto';
+import { ServerResponseDto } from '../../common/dto/server-response.dto';
 import { slugify } from 'transliteration';
 import { nanoid } from 'nanoid';
 

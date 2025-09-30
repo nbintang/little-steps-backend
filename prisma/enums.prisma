@@ -3,16 +3,20 @@ enum UserRole {
   ADMINISTRATOR
 }
 
+enum ChildGender {
+  MALE
+  FEMALE
+}
+
 enum ContentType {
   ARTICLE
   FICTION_STORY
 }
 
 enum ContentStatus {
-  DRAFT 
+  DRAFT
   PUBLISHED
 }
-
 
 enum DayOfWeek {
   MON
@@ -23,6 +27,7 @@ enum DayOfWeek {
   SAT
   SUN
 }
+
 
 enum AuthProvider {
   LOCAL

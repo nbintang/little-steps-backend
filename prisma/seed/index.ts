@@ -1,4 +1,5 @@
 import {
+  ChildGender,
   ContentStatus,
   ContentType,
   DayOfWeek,
@@ -118,6 +119,7 @@ async function main() {
   // Create Child Profiles for Parent users (skip admin)
   console.log('👶 Creating child profiles...');
   const childProfiles = [];
+  const childGender: ChildGender[] = ['MALE', 'FEMALE'];
   const parentUsers = users.filter((user) => user.role === 'PARENT');
 
   for (const parent of parentUsers) {
@@ -130,6 +132,7 @@ async function main() {
           name: faker.person.firstName(),
           birthDate: faker.date.birthdate({ min: 3, max: 17, mode: 'age' }),
           avatarUrl: faker.image.avatar(),
+          gender: faker.helpers.arrayElement(childGender),
         },
       });
       childProfiles.push(childProfile);
@@ -219,10 +222,7 @@ async function main() {
       data: {
         title: `${faker.lorem.words(3)} Quiz`,
         description: faker.lorem.sentence(),
-        targetAgeMin: faker.number.int({ min: 3, max: 8 }),
-        targetAgeMax: faker.number.int({ min: 12, max: 17 }),
         createdBy: randomUser.id,
-        isDeleted: faker.datatype.boolean(0.05),
       },
     });
     quizzes.push(quiz);
@@ -237,8 +237,20 @@ async function main() {
       const question = await prisma.question.create({
         data: {
           quizId: quiz.id,
-          text: faker.lorem.sentence() + '?',
-          isDeleted: faker.datatype.boolean(0.05),
+          questionJson: {
+            type: 'doc',
+            content: [
+              {
+                type: 'paragraph',
+                content: [
+                  {
+                    type: 'text',
+                    text: faker.lorem.sentence(),
+                  },
+                ],
+              },
+            ],
+          },
         },
       });
 
@@ -256,7 +268,6 @@ async function main() {
             questionId: question.id,
             text: answerData.text,
             isCorrect: answerData.isCorrect,
-            isDeleted: faker.datatype.boolean(0.02),
           },
         });
       }

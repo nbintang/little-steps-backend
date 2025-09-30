@@ -12,16 +12,16 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ContentService } from '../services/content.service';
-import { CreateContentDto } from '../dto/create-content.dto';
-import { UpdateContentDto } from '../dto/update-content.dto';
-import { QueryContentDto } from '../dto/query-content.dto';
-import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { UserRole } from '../../user/enums/user-role.enum';
-import { VerifyEmailGuard } from '../../auth/guards/verify-email.guard';
-import { RoleGuard } from '../../auth/guards/role.guard';
-import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard';
+import { ContentService } from './content.service';
+import { CreateContentDto } from './dto/create-content.dto';
+import { UpdateContentDto } from './dto/update-content.dto';
+import { QueryContentDto } from './dto/query-content.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { VerifyEmailGuard } from '../auth/guards/verify-email.guard';
+import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../user/enums/user-role.enum';
 import { Request } from 'express';
 
 @Roles(UserRole.ADMINISTRATOR, UserRole.PARENT)

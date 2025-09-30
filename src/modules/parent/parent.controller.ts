@@ -1,34 +1,81 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { ParentService } from './parent.service';
-import { CreateParentDto } from './dto/create-parent.dto';
-import { UpdateParentDto } from './dto/update-parent.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { VerifyEmailGuard } from '../auth/guards/verify-email.guard';
+import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../user/enums/user-role.enum';
+import { CreateChildDto } from '../child/dto/create-child.dto';
+import { Request } from 'express';
+import { QueryChildDto } from '../child/dto/query-child.dto';
+import { UpdateChildDto } from '../child/dto/update-child.dto';
 
 @Controller('parent')
+@Roles(UserRole.PARENT)
+@UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 export class ParentController {
   constructor(private readonly parentService: ParentService) {}
 
-  @Post()
-  create(@Body() createParentDto: CreateParentDto) {
-    return this.parentService.create(createParentDto);
+  @Post('children')
+  async createChildProfile(
+    @Body() createChildDto: CreateChildDto,
+    @Req() request: Request,
+  ) {
+    return this.parentService.createChildProfile(
+      request.user.sub,
+      createChildDto,
+    );
   }
 
-  @Get()
-  findAll() {
-    return this.parentService.findAll();
+  @Get('children')
+  async findAllChildProfile(
+    @Req() request: Request,
+    @Query() query: QueryChildDto,
+  ) {
+    const userId = request.user.sub;
+    return await this.parentService.findAllChildProfile(userId, query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.parentService.findOne(+id);
+  @Get('children/:childId')
+  async findChildProfileById(
+    @Req() request: Request,
+    @Param('childId') childId: string,
+  ) {
+    const userId = request.user.sub;
+    return await this.parentService.findChildProfileById(userId, childId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateParentDto: UpdateParentDto) {
-    return this.parentService.update(+id, updateParentDto);
+  @Patch('children/:childId')
+  async updateChildProfile(
+    @Req() request: Request,
+    @Param('childId') childId: string,
+    @Body() updateChildDto: UpdateChildDto,
+  ) {
+    return await this.parentService.updateChildProfile(
+      request.user.sub,
+      childId,
+      updateChildDto,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.parentService.remove(+id);
+  @Delete('children/:childId')
+  async deleteChildProfile(
+    @Req() request: Request,
+    @Param('childId') id: string,
+  ) {
+    const userId = request.user.sub;
+    return this.parentService.deleteChildProfile(userId, id);
   }
 }
