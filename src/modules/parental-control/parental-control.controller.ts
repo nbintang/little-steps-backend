@@ -27,7 +27,7 @@ export class ParentalControlController {
   constructor(private readonly parentalService: ParentalControlService) {}
 
   @Post()
-  create(
+  createSchedule(
     @Req() req,
     @Param('childId') childId: string,
     @Body() dto: CreateScheduleDto,
@@ -36,12 +36,12 @@ export class ParentalControlController {
   }
 
   @Get()
-  list(@Req() req, @Param('childId') childId: string) {
+  listSchedules(@Req() req, @Param('childId') childId: string) {
     return this.parentalService.listSchedules(req.user.sub, childId);
   }
 
   @Patch(':scheduleId')
-  update(
+  updateSchedule(
     @Req() req,
     @Param('scheduleId') scheduleId: string,
     @Body() dto: UpdateScheduleDto,
@@ -50,7 +50,7 @@ export class ParentalControlController {
   }
 
   @Delete(':scheduleId')
-  delete(@Req() req, @Param('scheduleId') scheduleId: string) {
+  deleteSchedule(@Req() req, @Param('scheduleId') scheduleId: string) {
     return this.parentalService.deleteSchedule(req.user.sub, scheduleId);
   }
 }
