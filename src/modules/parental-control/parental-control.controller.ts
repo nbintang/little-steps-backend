@@ -1,34 +1,56 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+// src/parental-control/parental-control.controller.ts
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ParentalControlService } from './parental-control.service';
-import { CreateParentalControlDto } from './dto/create-parental-control.dto';
-import { UpdateParentalControlDto } from './dto/update-parental-control.dto';
+import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../user/enums/user-role.enum';
+import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
+import { VerifyEmailGuard } from '../auth/guards/verify-email.guard';
 
-@Controller('parental-control')
+@Controller('parental-control/children/:childId/schedules')
+@Roles(UserRole.PARENT)
+@UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 export class ParentalControlController {
-  constructor(private readonly parentalControlService: ParentalControlService) {}
+  constructor(private readonly parentalService: ParentalControlService) {}
 
   @Post()
-  create(@Body() createParentalControlDto: CreateParentalControlDto) {
-    return this.parentalControlService.create(createParentalControlDto);
+  create(
+    @Req() req,
+    @Param('childId') childId: string,
+    @Body() dto: CreateScheduleDto,
+  ) {
+    return this.parentalService.createSchedule(req.user.sub, childId, dto);
   }
 
   @Get()
-  findAll() {
-    return this.parentalControlService.findAll();
+  list(@Req() req, @Param('childId') childId: string) {
+    return this.parentalService.listSchedules(req.user.sub, childId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.parentalControlService.findOne(+id);
+  @Patch(':scheduleId')
+  update(
+    @Req() req,
+    @Param('scheduleId') scheduleId: string,
+    @Body() dto: UpdateScheduleDto,
+  ) {
+    return this.parentalService.updateSchedule(req.user.sub, scheduleId, dto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateParentalControlDto: UpdateParentalControlDto) {
-    return this.parentalControlService.update(+id, updateParentalControlDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.parentalControlService.remove(+id);
+  @Delete(':scheduleId')
+  delete(@Req() req, @Param('scheduleId') scheduleId: string) {
+    return this.parentalService.deleteSchedule(req.user.sub, scheduleId);
   }
 }

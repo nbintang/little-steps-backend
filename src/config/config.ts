@@ -12,6 +12,7 @@ export const authConfig = registerAs('auth', () => ({
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtVerificationSecret: process.env.JWT_VERIFICATION_SECRET,
   jwtTemporarySecret: process.env.JWT_TEMPORARY_SECRET,
+  jwtChildSecret: process.env.JWT_CHILD_SECRET,
   jwtResetPasswordSecret: process.env.JWT_RESET_PASSWORD_SECRET,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,

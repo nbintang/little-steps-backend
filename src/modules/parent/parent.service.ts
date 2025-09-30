@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateChildDto } from '../child/dto/create-child.dto';
+import { CreateChildDto } from '../children/dto/create-child.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { UpdateChildDto } from '../child/dto/update-child.dto';
-import { QueryChildDto } from '../child/dto/query-child.dto';
+import { UpdateChildDto } from '../children/dto/update-child.dto';
+import { QueryChildDto } from '../children/dto/query-child.dto';
 import { Prisma } from '@prisma/client';
-
 @Injectable()
 export class ParentService {
   constructor(private readonly prisma: PrismaService) {}

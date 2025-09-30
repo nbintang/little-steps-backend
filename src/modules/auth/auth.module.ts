@@ -18,13 +18,17 @@ import { AuthGoogleController } from './controllers/auth-google.controller';
 import { ProfileModule } from '../profile/profile.module';
 import { AuthPasswordService } from './services/auth-password.service';
 import { AuthPasswordController } from './controllers/auth-password.controller';
+import { ParentModule } from '../parent/parent.module';
+import { PrismaModule } from '../../common/prisma/prisma.module';
 
 @Module({
   imports: [
+    PrismaModule,
     PassportModule,
     UserModule,
     ConfigModule,
     MailerModule,
+    ParentModule,
     ProfileModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
