@@ -38,11 +38,11 @@ export class QuestionController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async findQuestionDetailFromQUizById(
+  async findQuestionDetailFromQuizById(
     @Param('quizId') quizId: string,
     @Param('id') questionId: string,
   ) {
-    return await this.questionService.findQuestionDetailFromQUizById(
+    return await this.questionService.findQuestionDetailFromQuizById(
       quizId,
       questionId,
     );

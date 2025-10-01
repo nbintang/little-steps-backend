@@ -55,9 +55,9 @@ export class QuestionService {
     };
   }
 
-  async findQuestionDetailFromQUizById(quizId: string, questionId: string) {
+  async findQuestionDetailFromQuizById(quizId: string, questionId: string) {
     const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
+      where: { id: questionId, AND: { quizId } },
       select: {
         id: true,
         questionJson: true,

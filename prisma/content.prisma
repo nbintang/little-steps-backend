@@ -31,5 +31,6 @@ model Progress {
   content Content?     @relation(fields: [contentId], references: [id])
   quiz    Quiz?        @relation(fields: [quizId], references: [id])
 
+  @@unique([quizId, childId])
   @@map("progress")
 }
