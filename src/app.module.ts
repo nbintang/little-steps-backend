@@ -15,7 +15,6 @@ import { ParentModule } from './modules/parent/parent.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { ForumModule } from './modules/forum/forum.module';
 import { ChildrenModule } from './modules/children/children.module';
-import { ParentalControlModule } from './modules/parental-control/parental-control.module';
 
 @Module({
   imports: [
@@ -33,7 +32,6 @@ import { ParentalControlModule } from './modules/parental-control/parental-contr
     QuizModule,
     ForumModule,
     ChildrenModule,
-    ParentalControlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,7 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-} from 'class-validator'; 
+} from 'class-validator';
 import { DayOfWeek } from '../enums/day-of-week.enum';
 
 export class CreateScheduleDto {

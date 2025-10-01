@@ -6,8 +6,8 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ContentService } from './content.service';
-import { QueryContentDto } from './dto/query-content.dto';
+import { ContentService } from '../services/content.service';
+import { QueryContentDto } from '../dto/query-content.dto';
 @Controller('contents/published')
 export class PublishedContentController {
   constructor(private readonly contentService: ContentService) {}

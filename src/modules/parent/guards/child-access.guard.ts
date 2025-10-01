@@ -3,48 +3,36 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
   ForbiddenException,
-  LoggerService,
   Inject,
+  LoggerService,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ParentalControlService } from '../parental-control.service';
-import { ChildPayload } from '../interfaces/child-payload.interface';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { ParentalControlScheduleService } from '../services/parental-control-schedule.service';
 
 @Injectable()
 export class ChildAccessGuard implements CanActivate {
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly parentalControlScheduleService: ParentalControlScheduleService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: LoggerService,
-    private readonly parentalService: ParentalControlService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const request = ctx.switchToHttp().getRequest();
-    const token = request.cookies?.['childToken'] || null;
-    if (!token) throw new UnauthorizedException('Child token missing');
+    const user = request.user;
 
-    let payload: ChildPayload;
-    try {
-      payload = await this.jwtService.verifyAsync(token);
-    } catch (err) {
-      this.logger.log(err);
-      throw new UnauthorizedException('Invalid or expired child token');
+    if (!user.childId) {
+      throw new ForbiddenException('Child context missing');
     }
-    if (!payload?.childId || !payload?.parentId) {
-      throw new ForbiddenException('Invalid child token payload');
-    }
-    const allowedWindows = await this.parentalService.getCurrentAccessWindow(
-      payload.childId,
-    );
+
+    const allowedWindows =
+      await this.parentalControlScheduleService.getCurrentAccessWindow(
+        user.childId,
+      );
 
     const isAllowedNow = allowedWindows.some((w) => w.activeNow);
-
     if (!isAllowedNow) {
-      this.logger.log(allowedWindows);
       const allowedStr = allowedWindows
         .map((w) => {
           const start = w.startTime.toLocaleTimeString('en-US', {
@@ -52,7 +40,6 @@ export class ChildAccessGuard implements CanActivate {
             minute: '2-digit',
             hour12: true,
           });
-
           const end = w.endTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
@@ -66,7 +53,8 @@ export class ChildAccessGuard implements CanActivate {
         `Access restricted by parental control schedule. Allowed access: [${allowedStr}]`,
       );
     }
-    request.child = { id: payload.childId, parentId: payload.parentId };
+
+    request.child = user; // inject ke request biar bisa dipake controller
     return true;
   }
 }
