@@ -1,5 +1,4 @@
-export interface ChildPayload {
-  sub: string;
+export interface ChildJwtPayload {
   childId: string;
   parentId: string;
 }

@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsInt } from 'class-validator';
 
 export class UpdateQuizDto {
   @IsString()
@@ -11,4 +11,9 @@ export class UpdateQuizDto {
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   description?: string;
+
+  @IsInt()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  duration?: number;
 }

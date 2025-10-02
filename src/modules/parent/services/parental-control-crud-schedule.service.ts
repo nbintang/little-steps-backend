@@ -5,18 +5,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { DayOfWeek } from '../enums/day-of-week.enum';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '../../../config/config.service';
 import { CreateScheduleDto } from '../dto/create-schedule.dto';
 import { UpdateScheduleDto } from '../dto/update-schedule.dto';
 
 @Injectable()
 export class ParentalControlService {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-  ) {}
+  private today = new Date().toISOString().split('T')[0];
+  constructor(private readonly prisma: PrismaService) {}
   private async checkOverlap(
     childId: string,
     day: DayOfWeek,
@@ -54,11 +49,18 @@ export class ParentalControlService {
       where: { id: childId },
     });
     if (!child || child.parentId !== parentId) throw new ForbiddenException();
-    if (await this.checkOverlap(childId, dto.day, dto.startTime, dto.endTime)) {
+    const startTime = new Date(`${this.today}T${dto.startTime}`);
+    const endTime = new Date(`${this.today}T${dto.endTime}`);
+    if (await this.checkOverlap(childId, dto.day, startTime, endTime)) {
       throw new ForbiddenException('Schedule overlaps with existing schedule');
     }
     const schedule = await this.prisma.parentalControlSchedule.create({
-      data: { ...dto, childId },
+      data: {
+        day: dto.day,
+        startTime,
+        endTime,
+        childId,
+      },
     });
     return { data: schedule };
   }
@@ -71,6 +73,7 @@ export class ParentalControlService {
 
     const schedules = await this.prisma.parentalControlSchedule.findMany({
       where: { childId },
+      select: { id: true, day: true, startTime: true, endTime: true },
       orderBy: { day: 'asc' },
     });
     return { data: schedules };
@@ -83,16 +86,24 @@ export class ParentalControlService {
   ) {
     const schedule = await this.prisma.parentalControlSchedule.findUnique({
       where: { id: scheduleId },
-      include: { child: true },
+      select: {
+        childId: true,
+        id: true,
+        child: { select: { parentId: true } },
+      },
     });
+
+    const startTime = new Date(`${this.today}T${dto.startTime}`);
+    const endTime = new Date(`${this.today}T${dto.endTime}`);
     if (!schedule) throw new NotFoundException();
     if (schedule.child.parentId !== parentId) throw new ForbiddenException();
+
     if (
       await this.checkOverlap(
         schedule.childId,
         dto.day,
-        dto.startTime,
-        dto.endTime,
+        startTime,
+        endTime,
         scheduleId,
       )
     ) {
@@ -101,7 +112,11 @@ export class ParentalControlService {
 
     const updated = await this.prisma.parentalControlSchedule.update({
       where: { id: scheduleId },
-      data: dto,
+      data: {
+        day: dto.day,
+        startTime,
+        endTime,
+      },
     });
 
     return { data: updated };
@@ -110,14 +125,16 @@ export class ParentalControlService {
   async deleteSchedule(parentId: string, scheduleId: string) {
     const schedule = await this.prisma.parentalControlSchedule.findUnique({
       where: { id: scheduleId },
-      include: { child: true },
+      select: {
+        childId: true,
+        id: true,
+        child: { select: { parentId: true } },
+      },
     });
     if (!schedule) throw new NotFoundException();
     if (schedule.child.parentId !== parentId) throw new ForbiddenException();
-
     await this.prisma.parentalControlSchedule.delete({
       where: { id: scheduleId },
-      include: { child: { select: { id: true, name: true } } },
       omit: { childId: true },
     });
     return { message: 'Schedule deleted' };

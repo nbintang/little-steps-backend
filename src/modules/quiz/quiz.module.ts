@@ -5,10 +5,17 @@ import { PrismaModule } from '../../common/prisma/prisma.module';
 import { AccessControlService } from '../auth/shared/access-control.service';
 import { QuestionService } from './services/question.service';
 import { QuestionController } from './controllers/question.controller';
+import { QuizPlayService } from './services/quiz-play.service';
 
 @Module({
   imports: [PrismaModule],
   controllers: [QuizController, QuestionController],
-  providers: [QuizService, AccessControlService, QuestionService],
+  providers: [
+    QuizService,
+    QuizPlayService,
+    AccessControlService,
+    QuestionService,
+  ],
+  exports: [QuizService, QuizPlayService],
 })
 export class QuizModule {}

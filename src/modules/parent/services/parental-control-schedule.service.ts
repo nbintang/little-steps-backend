@@ -1,53 +1,57 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { getDay } from 'date-fns';
 import { toZonedTime as utcToZonedTime } from 'date-fns-tz';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { DayOfWeek } from '../enums/day-of-week.enum';
-import { JwtService } from '@nestjs/jwt';
-import { ChildPayload } from '../interfaces/child-payload.interface';
-import { ConfigService } from '../../../config/config.service';
+import { CurrentAccessWindow } from '../interfaces/current-access.interface';
 
 @Injectable()
 export class ParentalControlScheduleService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-  ) {}
-  async getCurrentAccessWindow(childId: string) {
-    const nowUTC = new Date();
+  constructor(private readonly prisma: PrismaService) {}
+  async getCurrentAccessWindow(
+    childId: string,
+  ): Promise<CurrentAccessWindow[]> {
     const schedules = await this.prisma.parentalControlSchedule.findMany({
       where: { childId },
     });
-    const validWindows = [];
-    const nowLocal = utcToZonedTime(nowUTC, 'Asia/Jakarta');
-    const today = DayOfWeek[getDay(nowLocal)];
+
+    const windows: CurrentAccessWindow[] = [];
+
     for (const s of schedules) {
-      if (today !== s.day) continue;
-      const todayDate = nowLocal.toISOString().split('T')[0];
-      const startLocal = utcToZonedTime(
-        new Date(`${todayDate}T${s.startTime.toTimeString().split(' ')[0]}`),
-        s.timezone || 'UTC',
-      );
-      const endLocal = utcToZonedTime(
-        new Date(`${todayDate}T${s.endTime.toTimeString().split(' ')[0]}`),
-        s.timezone || 'UTC',
-      );
-      const nowM = nowLocal.getHours() * 60 + nowLocal.getMinutes();
-      const startM = startLocal.getHours() * 60 + startLocal.getMinutes();
-      const endM = endLocal.getHours() * 60 + endLocal.getMinutes();
-      validWindows.push({
-        day: s.day,
-        startTime: startLocal,
-        endTime: endLocal,
-        timezone: s.timezone,
-        activeNow:
-          startM <= endM
-            ? nowM >= startM && nowM <= endM
-            : nowM >= startM || nowM <= endM,
+      const tz = s.timezone || 'UTC';
+      const nowInTz = utcToZonedTime(new Date(), tz);
+
+      const startIso = s.startTime.toISOString();
+      const endIso = s.endTime.toISOString();
+      const startTimePart = startIso.split('T')[1].split('.')[0];
+      const endTimePart = endIso.split('T')[1].split('.')[0];
+
+      const [sh, sm] = startTimePart.split(':').map(Number);
+      const [eh, em] = endTimePart.split(':').map(Number);
+
+      const nowMinutes = nowInTz.getHours() * 60 + nowInTz.getMinutes();
+      const startTotal = sh * 60 + sm;
+      const endTotal = eh * 60 + em;
+
+      const weekdayIdx = getDay(nowInTz);
+      const todayStr = DayOfWeek[weekdayIdx];
+
+      const activeNow =
+        String(s.day).toUpperCase() === todayStr &&
+        (startTotal <= endTotal
+          ? nowMinutes >= startTotal && nowMinutes <= endTotal
+          : nowMinutes >= startTotal || nowMinutes <= endTotal); // overnight
+
+      windows.push({
+        day: s.day as any,
+        startTime: startTimePart,
+        endTime: endTimePart,
+        timezone: tz,
+        activeNow,
       });
     }
-    return validWindows;
+
+    return windows;
   }
 
   async isChildAllowed(childId: string): Promise<boolean> {
@@ -74,24 +78,5 @@ export class ParentalControlScheduleService {
       }
     }
     return false;
-  }
-
-  async signChildToken(parentId: string, childId: string) {
-    const child = await this.prisma.childProfile.findUnique({
-      where: { id: childId },
-      include: { parent: true },
-    });
-    if (!child || child.parentId !== parentId) {
-      throw new ForbiddenException('Child not found or not owned by you');
-    }
-    const payload: ChildPayload = {
-      sub: child.id,
-      childId: child.id,
-      parentId: child.parentId,
-    };
-    return this.jwtService.signAsync(payload, {
-      secret: this.configService.jwt.childSecret,
-      expiresIn: '12h',
-    });
   }
 }

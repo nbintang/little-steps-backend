@@ -9,5 +9,6 @@ import { ContentController } from './controllers/content.controller';
   imports: [PrismaModule],
   controllers: [ContentController, PublishedContentController],
   providers: [ContentService, AccessControlService],
+  exports: [ContentService],
 })
 export class ContentModule {}

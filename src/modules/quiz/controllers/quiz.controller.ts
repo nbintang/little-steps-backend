@@ -23,16 +23,12 @@ import { CreateQuizDto } from '../dto/quiz/create-quiz.dto';
 import { UpdateQuizDto } from '../dto/quiz/update-quiz.dto';
 import { Request } from 'express';
 import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
-import { QuestionService } from '../services/question.service';
 
 @Roles(UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 @Controller('quizzes')
 export class QuizController {
-  constructor(
-    private readonly quizService: QuizService,
-    private readonly questionService: QuestionService,
-  ) {}
+  constructor(private readonly quizService: QuizService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

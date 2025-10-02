@@ -6,9 +6,28 @@ export class ChildrenService {
   constructor(private prisma: PrismaService) {}
 
   async findChildProfileWithParent(id: string) {
-    return await this.prisma.childProfile.findUnique({
+    const child = await this.prisma.childProfile.findUnique({
       where: { id },
-      include: { parent: true },
+      select: {
+        id: true,
+        name: true,
+        birthDate: true,
+        gender: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
+
+    return {
+      data: child,
+    };
   }
 }

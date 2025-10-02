@@ -222,6 +222,7 @@ async function main() {
       data: {
         title: `${faker.lorem.words(3)} Quiz`,
         description: faker.lorem.sentence(),
+        timeLimit: faker.number.int({ min: 30, max: 120 }),
         createdBy: randomUser.id,
       },
     });
@@ -277,21 +278,6 @@ async function main() {
   // Create Progress records
   console.log('📊 Creating progress records...');
   for (const child of childProfiles) {
-    // Content progress
-    const contentToProgress = faker.helpers.arrayElements(
-      contents,
-      faker.number.int({ min: 3, max: 8 }),
-    );
-    for (const content of contentToProgress) {
-      await prisma.progress.create({
-        data: {
-          childId: child.id,
-          contentId: content.id,
-          completionPercent: faker.number.int({ min: 10, max: 100 }),
-        },
-      });
-    }
-
     // Quiz progress
     const quizzesToProgress = faker.helpers.arrayElements(
       quizzes,

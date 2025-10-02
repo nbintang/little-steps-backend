@@ -14,7 +14,7 @@ export class PublishedContentController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findContents(@Query() query: QueryContentDto) {
-    return await this.contentService.findContents(query);
+    return await this.contentService.findPublishedContent(query);
   }
   @Get(':slug')
   @HttpCode(HttpStatus.OK)

@@ -16,17 +16,17 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ParentalControlService } from '../services/parental-control.service';
+import { ParentalControlService } from '../services/parental-control-crud-schedule.service';
 import { CreateScheduleDto } from '../dto/create-schedule.dto';
 import { UpdateScheduleDto } from '../dto/update-schedule.dto';
 
 @Roles(UserRole.PARENT)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('parent/children/:childId')
-export class ParentalControlController {
+@Controller('parent/children/:childId/schedules')
+export class ParentalControlSchedulesController {
   constructor(private readonly parentalService: ParentalControlService) {}
 
-  @Post('schedules')
+  @Post()
   async createSchedule(
     @Req() req,
     @Param('childId') childId: string,
@@ -39,12 +39,12 @@ export class ParentalControlController {
     );
   }
 
-  @Get('schedules')
+  @Get()
   async listSchedules(@Req() req, @Param('childId') childId: string) {
     return await this.parentalService.listSchedules(req.user.sub, childId);
   }
 
-  @Patch('schedules/:id')
+  @Patch(':id')
   async updateSchedule(
     @Req() req,
     @Param('id') id: string,
@@ -53,7 +53,7 @@ export class ParentalControlController {
     return await this.parentalService.updateSchedule(req.user.sub, id, dto);
   }
 
-  @Delete('schedules/:id')
+  @Delete(':id')
   async deleteSchedule(@Req() req, @Param('id') id: string) {
     return await this.parentalService.deleteSchedule(req.user.sub, id);
   }

@@ -149,7 +149,7 @@ export class QuestionService {
 
     const existingQuestion = await this.prisma.question.findUnique({
       where: { id: questionId },
-      include: { answers: true },
+      select: { quizId: true },
     });
     if (!existingQuestion || existingQuestion.quizId !== quizId) {
       throw new NotFoundException(

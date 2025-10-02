@@ -4,15 +4,15 @@ import { PrismaModule } from '../../common/prisma/prisma.module';
 import { ConfigModule } from '../../config/config.module';
 import { ConfigService } from '../../config/config.service';
 
-import { ParentalControlService } from './services/parental-control.service';
+import { ParentalControlService } from './services/parental-control-crud-schedule.service';
 import { ParentalControlScheduleService } from './services/parental-control-schedule.service';
 import { AccessControlService } from '../auth/shared/access-control.service';
-
-// Guards
-import { ChildAccessGuard } from './guards/child-access.guard';
 import { ParentChildrenController } from './controllers/parent-children.controller';
 import { ParentChildrenService } from './services/parent-children.service';
-import { ParentalControlController } from './controllers/parental-control.controller';
+import { ParentalControlSchedulesController } from './controllers/parental-control-schedules.controller';
+import { ChildAccessGuard } from './guards/child-access.guard';
+import { ParentChildrenAuthController } from './controllers/parent-children-auth.controller';
+import { ParentChildrenAuthService } from './services/parent-children-auth.service';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { ParentalControlController } from './controllers/parental-control.contro
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.jwt.accessSecret,
-        signOptions: { expiresIn: '12h' },
+        signOptions: { expiresIn: '30s' },
       }),
     }),
     JwtModule.registerAsync({
@@ -35,11 +35,16 @@ import { ParentalControlController } from './controllers/parental-control.contro
       }),
     }),
   ],
-  controllers: [ParentChildrenController, ParentalControlController],
+  controllers: [
+    ParentChildrenController,
+    ParentalControlSchedulesController,
+    ParentChildrenAuthController,
+  ],
   providers: [
     ParentChildrenService,
     ParentalControlService,
     ParentalControlScheduleService,
+    ParentChildrenAuthService,
     AccessControlService,
     ChildAccessGuard,
   ],
@@ -47,6 +52,7 @@ import { ParentalControlController } from './controllers/parental-control.contro
     ParentChildrenService,
     ParentalControlService,
     ParentalControlScheduleService,
+    ParentChildrenAuthService,
     ChildAccessGuard,
     JwtModule,
   ],

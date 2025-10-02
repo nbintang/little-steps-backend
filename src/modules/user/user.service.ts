@@ -34,7 +34,19 @@ export class UserService {
   }
 
   async findUserById(id: string) {
-    return await this.prisma.user.findUnique({ where: { id } });
+    return await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        verified: true,
+        provider: true,
+        isRegistered: true,
+        profile: { select: { id: true } },
+      },
+    });
   }
 
   async findUserByEmail(email: string) {

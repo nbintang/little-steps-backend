@@ -12,25 +12,6 @@ model Content {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
   author      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  progress    Progress[]
 
   @@map("contents")
-}
-
-model Progress {
-  id                String   @id @default(uuid())
-  childId           String   @map("child_id")
-  contentId         String?  @map("content_id")
-  quizId            String?  @map("quiz_id")
-  score             Int?
-  completionPercent Int?     @map("completion_percent")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
-
-  child   ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  content Content?     @relation(fields: [contentId], references: [id])
-  quiz    Quiz?        @relation(fields: [quizId], references: [id])
-
-  @@unique([quizId, childId])
-  @@map("progress")
 }

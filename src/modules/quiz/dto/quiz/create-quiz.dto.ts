@@ -5,8 +5,9 @@ import {
   IsOptional,
   IsArray,
   ValidateNested,
+  IsInt,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { CreateQuestionInQuizDto } from '../question/create-question.dto';
 
 export class CreateQuizDto {
@@ -17,6 +18,11 @@ export class CreateQuizDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsInt()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  duration?: number;
 
   @IsArray()
   @IsOptional()

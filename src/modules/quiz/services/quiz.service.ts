@@ -17,13 +17,14 @@ export class QuizService {
    * Membuat quiz baru beserta questions dan answers
    */
   async createQuiz(userId: string, createQuizDto: CreateQuizDto) {
-    const { title, description, questions } = createQuizDto;
+    const { title, description, questions, duration } = createQuizDto;
 
     const createdQuiz = await this.prisma.quiz.create({
       data: {
         title,
         description,
         createdBy: userId,
+        timeLimit: duration,
         questions: {
           create: questions?.map((question) => ({
             questionJson: question.questionJson,
@@ -143,7 +144,12 @@ export class QuizService {
   async findQuizById(quizId: string) {
     const foundQuiz = await this.prisma.quiz.findUnique({
       where: { id: quizId },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        timeLimit: true,
+        createdAt: true,
         author: {
           select: { id: true, name: true, email: true },
         },
