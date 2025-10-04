@@ -1,4 +1,4 @@
-import { UserRole } from 'src/modules/user/enums/user-role.enum';
+import { UserRole } from '../../user/enums/user-role.enum';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
 import { RoleGuard } from '../../auth/guards/role.guard';

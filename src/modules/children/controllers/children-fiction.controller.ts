@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ChildAccessGuard } from 'src/modules/parent/guards/child-access.guard';
+import { ChildAccessGuard } from '../../parent/guards/child-access.guard';
 import { ContentService } from '../../content/services/content.service';
 import { QueryContentDto } from '../../content/dto/query-content.dto';
 import { ContentType } from '../../content/enums/content.enum';

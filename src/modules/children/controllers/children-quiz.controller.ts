@@ -9,10 +9,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ChildAccessGuard } from 'src/modules/parent/guards/child-access.guard';
+import { ChildAccessGuard } from '../../parent/guards/child-access.guard';
 import { Request } from 'express';
 import { QuizPlayService } from '../../quiz/services/quiz-play.service';
-import { QueryQuizPlayDto } from 'src/modules/quiz/dto/quiz/query-quiz-play.dto';
+import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')
