@@ -1,10 +1,7 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class QueryQuizDto {
-  @IsOptional()
-  @IsUUID()
-  userId?: string;
   @IsOptional()
   @IsString()
   keyword?: string;

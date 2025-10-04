@@ -3,13 +3,10 @@ import {
   IsString,
   IsNotEmpty,
   IsOptional,
-  IsArray,
-  ValidateNested,
   IsInt,
   IsUUID,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { CreateQuestionInQuizDto } from '../question/create-question.dto';
+import { Transform } from 'class-transformer';
 
 export class CreateQuizDto {
   @IsString()
@@ -24,12 +21,6 @@ export class CreateQuizDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   duration?: number;
-
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => CreateQuestionInQuizDto)
-  questions?: CreateQuestionInQuizDto[];
 
   @IsOptional()
   @IsUUID()

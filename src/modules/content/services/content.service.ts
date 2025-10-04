@@ -198,7 +198,16 @@ export class ContentService {
         rating: true,
         contentJson: true,
         author: {
-          select: { id: true, name: true, email: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profile: {
+              select: {
+                avatarUrl: true,
+              },
+            },
+          },
         },
         category: {
           select: {
@@ -268,7 +277,7 @@ export class ContentService {
   async findExistedContentBySlug(slug: string) {
     return await this.prisma.content.findUnique({
       where: { slug },
-      select: { slug: true },
+      select: { slug: true, status: true },
     });
   }
 
@@ -282,8 +291,10 @@ export class ContentService {
   }
 
   async rateContent(slug: string, rate: RateContentDto) {
-    const existedContent = await this.findContentBySlug(slug);
-    if (!existedContent) throw new NotFoundException('Content not found');
+    const existedContent = await this.findExistedContentBySlug(slug);
+    if (!existedContent || existedContent.status !== ContentStatus.PUBLISHED) {
+      throw new NotFoundException('Content not found');
+    }
     const content = await this.prisma.content.update({
       where: { slug },
       data: {
@@ -292,10 +303,6 @@ export class ContentService {
       select: {
         id: true,
         slug: true,
-        title: true,
-        type: true,
-        status: true,
-        excerpt: true,
         rating: true,
       },
     });

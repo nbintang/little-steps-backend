@@ -6,7 +6,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { UpdateAnswerDto } from '../answer/update-answer.dto';
-export class UpdateQuestionDto {
+export class InputQuestionDto {
   @IsNotEmpty()
   questionJson: Record<string, any>;
 

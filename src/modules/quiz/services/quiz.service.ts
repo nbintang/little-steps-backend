@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateQuizDto } from '../dto/quiz/create-quiz.dto';
 import { UpdateQuizDto } from '../dto/quiz/update-quiz.dto';
@@ -13,14 +9,8 @@ import { RateQuizDto } from '../dto/quiz/rate-quiz.dto';
 @Injectable()
 export class QuizService {
   constructor(private readonly prisma: PrismaService) {}
-
-  /**
-   * Membuat quiz baru beserta questions dan answers
-   */
   async createQuiz(userId: string, createQuizDto: CreateQuizDto) {
-    const { title, description, questions, duration, categoryId } =
-      createQuizDto;
-
+    const { title, description, duration, categoryId } = createQuizDto;
     const createdQuiz = await this.prisma.quiz.create({
       data: {
         title,
@@ -30,62 +20,32 @@ export class QuizService {
           connect: { id: userId },
         },
         timeLimit: duration,
-        questions: {
-          create: questions?.map((question) => ({
-            questionJson: question.questionJson,
-            answers: {
-              create: question.answers.map((answer) => ({
-                text: answer.text,
-                imageAnswer: answer.imageAnswer,
-                isCorrect: answer.isCorrect,
-              })),
-            },
-          })),
-        },
       },
       select: {
         id: true,
         title: true,
         description: true,
-        createdAt: true,
-        questions: {
-          select: {
-            id: true,
-            questionJson: true,
-            answers: {
-              select: {
-                id: true,
-                text: true,
-                imageAnswer: true,
-                isCorrect: true,
-              },
-            },
-          },
-        },
-        author: {
+        timeLimit: true,
+        rating: true,
+        category: {
           select: {
             id: true,
             name: true,
-            email: true,
           },
         },
+        createdAt: true,
       },
     });
-
     return {
       message: 'Quiz berhasil dibuat',
       data: createdQuiz,
     };
   }
 
-  /**
-   * Mendapatkan semua quiz dengan pagination dan filter
-   */
   async findAllQuizzes(query: QueryQuizDto) {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const searchKeyword = query.keyword;
-    const userId = query.userId;
     const skipCount = (page - 1) * limit;
 
     const where: Prisma.QuizWhereInput = {
@@ -95,7 +55,6 @@ export class QuizService {
           { description: { contains: searchKeyword, mode: 'insensitive' } },
         ],
       }),
-      ...(userId && { createdBy: userId }),
     };
     const [quizzes, totalCount] = await Promise.all([
       this.prisma.quiz.findMany({
@@ -121,13 +80,6 @@ export class QuizService {
               id: true,
             },
           },
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
         },
       }),
       this.prisma.quiz.count({ where }),
@@ -150,10 +102,6 @@ export class QuizService {
       },
     };
   }
-
-  /**
-   * Mendapatkan detail quiz berdasarkan ID
-   */
   async findQuizById(quizId: string) {
     const foundQuiz = await this.prisma.quiz.findUnique({
       where: { id: quizId },
@@ -169,23 +117,6 @@ export class QuizService {
             id: true,
             slug: true,
             name: true,
-          },
-        },
-        author: {
-          select: { id: true, name: true, email: true },
-        },
-        questions: {
-          select: {
-            id: true,
-            questionJson: true,
-            answers: {
-              select: {
-                id: true,
-                text: true,
-                imageAnswer: true,
-                isCorrect: true,
-              },
-            },
           },
         },
       },
@@ -229,6 +160,12 @@ export class QuizService {
         rating: true,
         createdAt: true,
         updatedAt: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     return {
@@ -240,20 +177,11 @@ export class QuizService {
   /**
    * Menghapus quiz berdasarkan ID
    */
-  async deleteQuiz(quizId: string, userId: string) {
-    const existingQuiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
-      select: { id: true, createdBy: true },
-    });
+  async deleteQuiz(quizId: string) {
+    const existingQuiz = await this.findExistingQuiz(quizId);
 
     if (!existingQuiz) {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
-    }
-
-    if (existingQuiz.createdBy !== userId) {
-      throw new ForbiddenException(
-        'Anda tidak memiliki akses untuk menghapus quiz ini',
-      );
     }
 
     await this.prisma.quiz.delete({
@@ -265,11 +193,15 @@ export class QuizService {
     };
   }
 
-  async rateQuiz(rateQuizDto: RateQuizDto, quizId: string) {
-    const existingQuiz = await this.prisma.quiz.findUnique({
+  async findExistingQuiz(quizId: string) {
+    return await this.prisma.quiz.findUnique({
       where: { id: quizId },
-      select: { id: true },
+      select: { id: true, createdBy: true },
     });
+  }
+
+  async rateQuiz(rateQuizDto: RateQuizDto, quizId: string) {
+    const existingQuiz = await this.findExistingQuiz(quizId);
 
     if (!existingQuiz) {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
@@ -285,10 +217,7 @@ export class QuizService {
       select: {
         id: true,
         title: true,
-        description: true,
         rating: true,
-        createdAt: true,
-        updatedAt: true,
       },
     });
     return {

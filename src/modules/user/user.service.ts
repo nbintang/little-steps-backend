@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GoogleOauthUserResponse } from '../auth/interfaces/google-response.interface';
 import { AuthProvider } from '../auth/enums/auth-provider.enum';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { QueryUserDto } from './dto/query-user.dto';
+import { Prisma } from '@prisma/client';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UserService {
@@ -29,10 +32,59 @@ export class UserService {
     return newUser;
   }
 
-  async findUsers() {
-    return await this.prisma.user.findMany();
+  async findUsers(query: QueryUserDto) {
+    const page = (query.page || 1) - 1;
+    const limit = query.limit || 10;
+    const skip = page * limit;
+    const take = limit;
+    const where: Prisma.UserWhereInput = {
+      ...(query.keyword && {
+        name: { contains: query.keyword, mode: 'insensitive' },
+      }),
+    };
+    const [data, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+    return {
+      data,
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: limit,
+      },
+    };
   }
-
+  async findUserDetails(id: string) {
+    return await this.prisma.user.findUnique({
+      where: { id, role: UserRole.PARENT },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        isRegistered: true,
+        createdAt: true,
+        profile: {
+          select: {
+            id: true,
+            fullName: true,
+            bio: true,
+            birthDate: true,
+            avatarUrl: true,
+            latitude: true,
+            longitude: true,
+            phone: true,
+          },
+        },
+      },
+    });
+  }
   async findUserById(id: string) {
     return await this.prisma.user.findUnique({
       where: { id },
@@ -102,7 +154,14 @@ export class UserService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async deleteUser(id: string) {
+    const existingUser = await this.findUserById(id);
+    if (!existingUser) throw new NotFoundException('User not found');
+    await this.prisma.user.delete({
+      where: { id },
+    });
+    return {
+      message: 'User deleted successfully',
+    };
   }
 }

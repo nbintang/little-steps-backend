@@ -18,7 +18,7 @@ import { RoleGuard } from '../../auth/guards/role.guard';
 import { VerifyEmailGuard } from '../../auth/guards/verify-email.guard';
 import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard';
 
-@Controller('parent/children/:childId/auth')
+@Controller('protected/parent/children/:childId/auth')
 export class ParentChildrenAuthController {
   constructor(
     private readonly parentChildrenAuthService: ParentChildrenAuthService,

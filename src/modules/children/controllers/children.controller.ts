@@ -10,7 +10,7 @@ import { ChildAccessGuard } from 'src/modules/parent/guards/child-access.guard';
 import { ChildrenService } from '../children.service';
 import { Request } from 'express';
 @UseGuards(ChildAccessGuard)
-@Controller('children')
+@Controller('protected/children')
 export class ChildrenControllerController {
   constructor(private readonly childrenService: ChildrenService) {}
   @Get('profile')

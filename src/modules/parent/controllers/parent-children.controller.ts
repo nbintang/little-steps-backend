@@ -24,7 +24,7 @@ import { ParentChildrenService } from '../services/parent-children.service';
 
 @Roles(UserRole.PARENT)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('parent/children')
+@Controller('protected/parent/children')
 export class ParentChildrenController {
   constructor(private readonly parentService: ParentChildrenService) {}
 

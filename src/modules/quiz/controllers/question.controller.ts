@@ -11,7 +11,7 @@ import {
   Get,
   Query,
 } from '@nestjs/common';
-import { UpdateQuestionDto } from '../dto/question/update-question.dto';
+import { InputQuestionDto } from '../dto/question/input-question.dto';
 import { QuestionService } from '../services/question.service';
 import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard';
 import { VerifyEmailGuard } from '../../auth/guards/verify-email.guard';
@@ -23,7 +23,7 @@ import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
 
 @Roles(UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('quizzes/:quizId/questions')
+@Controller('protected/quizzes/:quizId/questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
@@ -51,9 +51,20 @@ export class QuestionController {
   @HttpCode(HttpStatus.CREATED)
   async addQuestionToQuiz(
     @Param('quizId') quizId: string,
-    @Body() createQuestionDto: UpdateQuestionDto,
+    @Body() createQuestionDto: InputQuestionDto,
   ) {
     return await this.questionService.addQuestionToQuiz(
+      quizId,
+      createQuestionDto,
+    );
+  }
+  @Post('/bulk')
+  @HttpCode(HttpStatus.CREATED)
+  async addQuestionsToQuiz(
+    @Param('quizId') quizId: string,
+    @Body() createQuestionDto: InputQuestionDto[],
+  ) {
+    return await this.questionService.addQuestionsToQuiz(
       quizId,
       createQuestionDto,
     );
@@ -63,7 +74,7 @@ export class QuestionController {
   async updateQuestionInQuiz(
     @Param('quizId') quizId: string,
     @Param('id') questionId: string,
-    @Body() updateQuestionDto: UpdateQuestionDto,
+    @Body() updateQuestionDto: InputQuestionDto,
   ) {
     return await this.questionService.updateQuestionInQuiz(
       quizId,

@@ -22,7 +22,7 @@ import { UpdateScheduleDto } from '../dto/update-schedule.dto';
 
 @Roles(UserRole.PARENT)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('parent/children/:childId/schedules')
+@Controller('protected/parent/children/:childId/schedules')
 export class ParentalControlSchedulesController {
   constructor(private readonly parentalService: ParentalControlService) {}
 

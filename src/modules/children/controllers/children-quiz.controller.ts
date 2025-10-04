@@ -15,7 +15,7 @@ import { QuizPlayService } from '../../quiz/services/quiz-play.service';
 import { QueryQuizPlayDto } from 'src/modules/quiz/dto/quiz/query-quiz-play.dto';
 
 @UseGuards(ChildAccessGuard)
-@Controller('children/quizzes')
+@Controller('protected/children/quizzes')
 export class ChildrenQuizController {
   constructor(private readonly quizPlayService: QuizPlayService) {}
 

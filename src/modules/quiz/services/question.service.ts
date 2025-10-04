@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { UpdateQuestionDto } from '../dto/question/update-question.dto';
+import { InputQuestionDto } from '../dto/question/input-question.dto';
 import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
 import { Prisma } from '@prisma/client';
 
@@ -8,16 +8,14 @@ import { Prisma } from '@prisma/client';
 export class QuestionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Menambahkan question baru ke quiz yang sudah ada
-   */
-  async addQuestionToQuiz(
-    quizId: string,
-    createQuestionDto: UpdateQuestionDto,
-  ) {
-    const existingQuiz = await this.prisma.quiz.findUnique({
+  async findExistingQuiz(quizId: string) {
+    return await this.prisma.quiz.findUnique({
       where: { id: quizId },
+      select: { id: true },
     });
+  }
+  async addQuestionToQuiz(quizId: string, createQuestionDto: InputQuestionDto) {
+    const existingQuiz = await this.findExistingQuiz(quizId);
 
     if (!existingQuiz) {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
@@ -53,6 +51,54 @@ export class QuestionService {
       message: 'Question berhasil ditambahkan ke quiz',
       data: createdQuestion,
     };
+  }
+
+  async addQuestionsToQuiz(
+    quizId: string,
+    createQuestionsDto: InputQuestionDto[],
+  ) {
+    const existingQuiz = await this.findExistingQuiz(quizId);
+
+    if (!existingQuiz) {
+      throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const createdQuestions = await Promise.all(
+        createQuestionsDto.map((q) =>
+          tx.question.create({
+            data: {
+              quizId,
+              questionJson: q.questionJson,
+              answers: {
+                create: q.answers.map((a) => ({
+                  text: a.text,
+                  imageAnswer: a.imageAnswer,
+                  isCorrect: a.isCorrect,
+                })),
+              },
+            },
+            select: {
+              id: true,
+              questionJson: true,
+              answers: {
+                select: {
+                  id: true,
+                  text: true,
+                  imageAnswer: true,
+                  isCorrect: true,
+                },
+              },
+            },
+          }),
+        ),
+      );
+
+      return {
+        message: 'Questions berhasil ditambahkan ke quiz',
+        data: createdQuestions,
+      };
+    });
   }
 
   async findQuestionDetailFromQuizById(quizId: string, questionId: string) {
@@ -138,11 +184,9 @@ export class QuestionService {
   async updateQuestionInQuiz(
     quizId: string,
     questionId: string,
-    updateQuestionDto: UpdateQuestionDto,
+    updateQuestionDto: InputQuestionDto,
   ) {
-    const existingQuiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
-    });
+    const existingQuiz = await this.findExistingQuiz(quizId);
     if (!existingQuiz) {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
     }
@@ -195,9 +239,7 @@ export class QuestionService {
    * Menghapus question dari quiz
    */
   async deleteQuestionFromQuiz(quizId: string, questionId: string) {
-    const existingQuiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
-    });
+    const existingQuiz = await this.findExistingQuiz(quizId);
 
     if (!existingQuiz) {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);

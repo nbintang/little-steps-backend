@@ -7,4 +7,6 @@ model Category {
 
   contents  Content[]
   quizzes   Quiz[]
+
+  @@map("category")
 }

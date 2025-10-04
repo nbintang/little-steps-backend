@@ -13,7 +13,7 @@ import { QueryContentDto } from '../../content/dto/query-content.dto';
 import { ContentType } from '../../content/enums/content.enum';
 
 @UseGuards(ChildAccessGuard)
-@Controller('children/contents/fictions')
+@Controller('protected/children/contents/fictions')
 export class ChildrenFictionController {
   constructor(private readonly contentService: ContentService) {}
   @Get()

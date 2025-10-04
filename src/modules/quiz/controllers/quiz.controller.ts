@@ -26,7 +26,7 @@ import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
 
 @Roles(UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('quizzes')
+@Controller('protected/quizzes')
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
@@ -63,8 +63,7 @@ export class QuizController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async deleteQuiz(@Param('id') quizId: string, @Req() request: Request) {
-    const userId = request.user.sub;
-    return await this.quizService.deleteQuiz(quizId, userId);
+  async deleteQuiz(@Param('id') quizId: string) {
+    return await this.quizService.deleteQuiz(quizId);
   }
 }
