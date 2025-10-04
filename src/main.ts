@@ -18,7 +18,7 @@ async function bootstrap() {
   });
 
   app.useBodyParser('json', { limit: '10mb' });
-  app.useBodyParser('urlencoded', { extended: true });
+  app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
 
   app.useGlobalPipes(
     new CustomValidationPipe({
