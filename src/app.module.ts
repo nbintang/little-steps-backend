@@ -15,6 +15,7 @@ import { ParentModule } from './modules/parent/parent.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { ForumModule } from './modules/forum/forum.module';
 import { ChildrenModule } from './modules/children/children.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ChildrenModule } from './modules/children/children.module';
     QuizModule,
     ForumModule,
     ChildrenModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,6 +8,7 @@ import { CreateQuizDto } from '../dto/quiz/create-quiz.dto';
 import { UpdateQuizDto } from '../dto/quiz/update-quiz.dto';
 import { Prisma } from '@prisma/client';
 import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
+import { RateQuizDto } from '../dto/quiz/rate-quiz.dto';
 
 @Injectable()
 export class QuizService {
@@ -17,13 +18,17 @@ export class QuizService {
    * Membuat quiz baru beserta questions dan answers
    */
   async createQuiz(userId: string, createQuizDto: CreateQuizDto) {
-    const { title, description, questions, duration } = createQuizDto;
+    const { title, description, questions, duration, categoryId } =
+      createQuizDto;
 
     const createdQuiz = await this.prisma.quiz.create({
       data: {
         title,
         description,
-        createdBy: userId,
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
+        author: {
+          connect: { id: userId },
+        },
         timeLimit: duration,
         questions: {
           create: questions?.map((question) => ({
@@ -101,8 +106,16 @@ export class QuizService {
         select: {
           id: true,
           title: true,
+          rating: true,
           description: true,
           createdAt: true,
+          category: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
           questions: {
             select: {
               id: true,
@@ -148,10 +161,32 @@ export class QuizService {
         id: true,
         title: true,
         description: true,
+        rating: true,
         timeLimit: true,
         createdAt: true,
+        category: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+          },
+        },
         author: {
           select: { id: true, name: true, email: true },
+        },
+        questions: {
+          select: {
+            id: true,
+            questionJson: true,
+            answers: {
+              select: {
+                id: true,
+                text: true,
+                imageAnswer: true,
+                isCorrect: true,
+              },
+            },
+          },
         },
       },
     });
@@ -172,6 +207,7 @@ export class QuizService {
   async updateQuiz(quizId: string, updateQuizDto: UpdateQuizDto) {
     const existingQuiz = await this.prisma.quiz.findUnique({
       where: { id: quizId },
+      select: { id: true },
     });
 
     if (!existingQuiz) {
@@ -190,6 +226,7 @@ export class QuizService {
         id: true,
         title: true,
         description: true,
+        rating: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -206,6 +243,7 @@ export class QuizService {
   async deleteQuiz(quizId: string, userId: string) {
     const existingQuiz = await this.prisma.quiz.findUnique({
       where: { id: quizId },
+      select: { id: true, createdBy: true },
     });
 
     if (!existingQuiz) {
@@ -224,6 +262,38 @@ export class QuizService {
 
     return {
       message: 'Quiz berhasil dihapus',
+    };
+  }
+
+  async rateQuiz(rateQuizDto: RateQuizDto, quizId: string) {
+    const existingQuiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      select: { id: true },
+    });
+
+    if (!existingQuiz) {
+      throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
+    }
+
+    const { rating } = rateQuizDto;
+
+    const updatedQuiz = await this.prisma.quiz.update({
+      where: { id: quizId },
+      data: {
+        rating,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        rating: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return {
+      message: 'Quiz berhasil dirate',
+      data: updatedQuiz,
     };
   }
 }

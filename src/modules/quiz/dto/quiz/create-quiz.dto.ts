@@ -6,6 +6,7 @@ import {
   IsArray,
   ValidateNested,
   IsInt,
+  IsUUID,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { CreateQuestionInQuizDto } from '../question/create-question.dto';
@@ -29,4 +30,8 @@ export class CreateQuizDto {
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionInQuizDto)
   questions?: CreateQuestionInQuizDto[];
+
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
 }

@@ -24,9 +24,9 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { Request } from 'express';
 
-@Roles(UserRole.ADMINISTRATOR, UserRole.PARENT)
+@Roles(UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('contents')
+@Controller('protected/contents')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
   @Post()

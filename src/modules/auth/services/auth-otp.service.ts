@@ -73,7 +73,7 @@ export class AuthOtpService {
     }
   }
   public async sendEmailConfirmation(userInfo: UserInfo) {
-    const token = this.generateVerificationToken({
+    const token = await this.generateVerificationToken({
       email: userInfo.email,
       secret: this.configService.jwt.verificationSecret,
     });
@@ -99,7 +99,7 @@ export class AuthOtpService {
     }
   }
   public async sendPasswordReset(userInfo: UserInfo) {
-    const token = this.generateVerificationToken({
+    const token = await this.generateVerificationToken({
       email: userInfo.email,
       secret: this.configService.jwt.resetPasswordSecret,
     });

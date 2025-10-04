@@ -9,7 +9,7 @@ import { VerifyEmailGuard } from '../auth/guards/verify-email.guard';
 import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
-@Controller('profile')
+@Controller('protected/profile')
 @Roles(UserRole.ADMINISTRATOR, UserRole.PARENT)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 export class ProfileController {

@@ -6,10 +6,11 @@ import { AccessControlService } from '../auth/shared/access-control.service';
 import { QuestionService } from './services/question.service';
 import { QuestionController } from './controllers/question.controller';
 import { QuizPlayService } from './services/quiz-play.service';
+import { PublicQuizController } from './controllers/public-quiz.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [QuizController, QuestionController],
+  controllers: [QuizController, QuestionController, PublicQuizController],
   providers: [
     QuizService,
     QuizPlayService,

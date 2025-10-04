@@ -98,6 +98,7 @@ export class UserService {
       data: {
         isRegistered: true,
       },
+      select: { id: true },
     });
   }
 

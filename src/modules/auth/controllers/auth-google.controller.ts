@@ -70,11 +70,11 @@ export class AuthGoogleController {
     }
     const tempToken = await this.authGoogleService.generateTemporaryToken(user);
     return response.redirect(
-      `${this.configService.frontendUrl}/complete-registration?oauth-token=${tempToken}`,
+      `${this.configService.frontendUrl}/google-login/complete-registration?oauth-token=${tempToken}`,
     );
   }
 
-  @Post('complete-registration')
+  @Post('google-login/complete-registration')
   @HttpCode(HttpStatus.OK)
   async completeRegistration(
     @Body() dto: GoogleRegisterDto,
