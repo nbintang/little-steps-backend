@@ -29,7 +29,7 @@ export class AuthOtpService {
     const PROD_URL = this.configService.frontendUrl;
     this.frontendUrl =
       process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000/api'
+        ? 'http://localhost:3000'
         : PROD_URL;
   }
 
@@ -73,7 +73,7 @@ export class AuthOtpService {
     }
   }
   public async sendEmailConfirmation(userInfo: UserInfo) {
-    const token = this.generateVerificationToken({
+    const token = await this.generateVerificationToken({
       email: userInfo.email,
       secret: this.configService.jwt.verificationSecret,
     });
@@ -99,7 +99,7 @@ export class AuthOtpService {
     }
   }
   public async sendPasswordReset(userInfo: UserInfo) {
-    const token = this.generateVerificationToken({
+    const token = await this.generateVerificationToken({
       email: userInfo.email,
       secret: this.configService.jwt.resetPasswordSecret,
     });

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   LoggerService,
@@ -10,6 +11,7 @@ import { ConfigService } from '../../../config/config.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AuthOtpService } from './auth-otp.service';
 import * as argon2 from 'argon2';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 @Injectable()
 export class AuthPasswordService {
   constructor(
@@ -38,18 +40,22 @@ export class AuthPasswordService {
 
   async resetPassword({
     token,
-    newPassword,
+    dto,
   }: {
     token: string;
-    newPassword: string;
+    dto: ResetPasswordDto;
   }) {
+    const isMatches = dto.password !== dto.confirmPassword;
+    if (isMatches) {
+      throw new BadRequestException('Passwords do not match');
+    }
     const { email } = await this.authOtpService.decodeConfirmationToken({
       token,
       secret: this.configService.jwt.resetPasswordSecret,
     });
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new NotFoundException('User not found');
-    const hashedPassword = await this.hashString(newPassword);
+    const hashedPassword = await this.hashString(dto.password);
     await this.userService.updatePassword(user.id, hashedPassword);
     return {
       message: 'Password Changed Successfully',

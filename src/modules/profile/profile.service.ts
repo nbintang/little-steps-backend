@@ -17,7 +17,7 @@ export class ProfileService {
         user: { connect: { id: userId } },
       },
     });
-    return await this.userService.findUserById(userId);
+    return await this.prisma.user.findUnique({ where: { id: userId } });
   }
 
   async findProfile(userId: string) {

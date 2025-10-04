@@ -3,9 +3,13 @@ model Quiz {
   title       String
   description String?
   createdBy   String   @map("created_by")
+  timeLimit   Int?     @map("time_limit")
+  rating      Float?   @default(0)
+  categoryId  String?  @map("category_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
+  category  Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   author    User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   questions Question[]
   progress  Progress[]
@@ -38,4 +42,20 @@ model Answer {
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@map("answers")
+}
+
+model Progress {
+  id                String    @id @default(uuid())
+  childId           String    @map("child_id")
+  quizId            String    @map("quiz_id")
+  score             Int?
+  completionPercent Int?      @map("completion_percent")
+  startedAt         DateTime  @default(now()) @map("started_at")
+  submittedAt       DateTime? @map("submitted_at")
+
+  quiz  Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, childId])
+  @@map("progress")
 }

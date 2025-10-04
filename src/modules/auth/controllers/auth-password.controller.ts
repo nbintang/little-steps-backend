@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { ProviderGuard } from '../guards/provider.guard';
 import { Provider } from '../decorators/provider.decorator';
 import { AuthProvider } from '../enums/auth-provider.enum';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthPasswordController {
@@ -37,15 +38,13 @@ export class AuthPasswordController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @Provider(AuthProvider.LOCAL)
-  @UseGuards(ProviderGuard)
   async resetPassword(
-    @Body() { newPassword }: { newPassword: string },
+    @Body() dto: ResetPasswordDto,
     @Query('token') token: string,
   ) {
     return await this.authPasswordService.resetPassword({
       token,
-      newPassword,
+      dto,
     });
   }
 }

@@ -1,10 +1,10 @@
-import { ContentStatus, Prisma } from '@prisma/client';
-import { IsString, IsOptional, IsEnum, IsUrl } from 'class-validator';
+import { ContentStatus } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { IsString, IsOptional, IsEnum, IsUrl, IsUUID } from 'class-validator';
 
-export class CreateContentDto
-  implements Omit<Prisma.ContentCreateInput, 'author' | 'slug' | 'type'>
-{
+export class CreateContentDto {
   @IsString()
+  @Transform(({ value }) => value?.trim())
   title: string;
 
   @IsOptional()
@@ -12,6 +12,7 @@ export class CreateContentDto
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => value?.trim())
   excerpt?: string;
 
   @IsOptional()
@@ -21,4 +22,8 @@ export class CreateContentDto
   @IsOptional()
   @IsEnum(ContentStatus)
   status?: ContentStatus = ContentStatus.DRAFT;
+
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
 }

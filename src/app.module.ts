@@ -14,8 +14,8 @@ import { MediaModule } from './modules/media/media.module';
 import { ParentModule } from './modules/parent/parent.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { ForumModule } from './modules/forum/forum.module';
-import { ChildModule } from './modules/child/child.module';
-import { ParentalControlModule } from './modules/parental-control/parental-control.module';
+import { ChildrenModule } from './modules/children/children.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -32,8 +32,8 @@ import { ParentalControlModule } from './modules/parental-control/parental-contr
     ParentModule,
     QuizModule,
     ForumModule,
-    ChildModule,
-    ParentalControlModule,
+    ChildrenModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

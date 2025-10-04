@@ -113,6 +113,7 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) response: Response) {
     const isProduction = process.env.NODE_ENV === 'production';
     response.clearCookie('refreshToken', this.setCookieOptions(isProduction));
+    response.clearCookie('childToken', this.setCookieOptions(isProduction));
     return await this.authService.logout();
   }
 }

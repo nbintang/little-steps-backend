@@ -12,13 +12,13 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.enableCors({
-    origin: [config.backendUrl],
+    origin: [config.frontendUrl],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
   app.useBodyParser('json', { limit: '10mb' });
-  app.useBodyParser('urlencoded', { extended: true });
+  app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
 
   app.useGlobalPipes(
     new CustomValidationPipe({
