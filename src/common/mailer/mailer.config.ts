@@ -24,7 +24,7 @@ export const MailerConfig: MailerAsyncOptions['useFactory'] = async (
   },
   template: {
     // For production : join(__dirname, '..', 'mailer', 'templates'),
-    dir: join(process.cwd(), 'src', 'common', 'mailer', 'templates'),
+    dir: join(__dirname, '..', 'mailer', 'templates'),
     adapter: new HandlebarsAdapter(),
     options: { strict: true },
   },

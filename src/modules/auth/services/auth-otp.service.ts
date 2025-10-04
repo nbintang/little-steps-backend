@@ -29,7 +29,7 @@ export class AuthOtpService {
     const PROD_URL = this.configService.frontendUrl;
     this.frontendUrl =
       process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000/api'
+        ? 'http://localhost:3000'
         : PROD_URL;
   }
 
