@@ -61,7 +61,7 @@ export class AuthGoogleController {
       }
 
       return response.redirect(
-        `${this.configService.frontendUrl}/login/success?access-token=${accessToken}`,
+        `${this.configService.frontendUrl}/login?access-token=${accessToken}`,
       );
     }
 
@@ -70,7 +70,7 @@ export class AuthGoogleController {
     }
     const tempToken = await this.authGoogleService.generateTemporaryToken(user);
     return response.redirect(
-      `${this.configService.frontendUrl}/google-login/complete-registration?oauth-token=${tempToken}`,
+      `${this.configService.frontendUrl}/complete-registration?oauth-token=${tempToken}`,
     );
   }
 
