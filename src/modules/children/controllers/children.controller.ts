@@ -6,7 +6,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ChildAccessGuard } from 'src/modules/parent/guards/child-access.guard';
+import { ChildAccessGuard } from '../../parent/guards/child-access.guard';
 import { ChildrenService } from '../children.service';
 import { Request } from 'express';
 @UseGuards(ChildAccessGuard)
