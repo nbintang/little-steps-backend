@@ -78,7 +78,7 @@ export class AuthOtpService {
       secret: this.configService.jwt.verificationSecret,
     });
 
-    const url = `${this.frontendUrl}/auth/verify?token=${token}`;
+    const url = `${this.frontendUrl}/verify?token=${token}`;
     const subject = 'Confirm your email';
     const template = this.mailerService.getEmailConfirmationTemplate(
       userInfo.name,
@@ -104,7 +104,7 @@ export class AuthOtpService {
       secret: this.configService.jwt.resetPasswordSecret,
     });
 
-    const url = `${this.frontendUrl}/auth/reset-password?token=${token}`;
+    const url = `${this.frontendUrl}/reset-password?token=${token}`;
     const subject = 'Reset your password';
     const template = this.mailerService.getPasswordResetTemplate(userInfo.name);
 
