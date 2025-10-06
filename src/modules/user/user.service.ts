@@ -141,6 +141,11 @@ export class UserService {
         isRegistered: false,
         acceptedTerms: true,
         acceptedAt: new Date(),
+        profile: {
+          create: {
+            avatarUrl: gUser.avatarUrl,
+          },
+        },
       },
     });
   }
