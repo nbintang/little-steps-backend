@@ -3,6 +3,7 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
@@ -11,11 +12,14 @@ export class ProfileService {
     private readonly userService: UserService,
   ) {}
   async completeProfile(dto: CreateProfileDto, userId: string) {
-    await this.prisma.profile.create({
-      data: {
-        ...dto,
-        user: { connect: { id: userId } },
-      },
+    const dataToUpdate: Prisma.ProfileUpdateInput = { ...dto };
+    if (dto.avatarUrl) {
+      dataToUpdate.avatarUrl = dto.avatarUrl;
+    }
+
+    await this.prisma.profile.update({
+      where: { userId },
+      data: dataToUpdate,
     });
     return await this.prisma.user.findUnique({ where: { id: userId } });
   }
