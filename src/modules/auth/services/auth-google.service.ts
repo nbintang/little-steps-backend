@@ -83,7 +83,7 @@ export class AuthGoogleService {
     };
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.jwt.temporarySecret,
-      expiresIn: '15m',
+      expiresIn: '1h',
     });
   }
 
