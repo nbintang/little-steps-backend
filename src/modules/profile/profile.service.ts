@@ -11,11 +11,9 @@ export class ProfileService {
     private readonly userService: UserService,
   ) {}
   async completeProfile(dto: CreateProfileDto, userId: string) {
-    await this.prisma.profile.create({
-      data: {
-        ...dto,
-        user: { connect: { id: userId } },
-      },
+    await this.prisma.profile.update({
+      where: { userId },
+      data: { ...dto },
     });
     return await this.prisma.user.findUnique({ where: { id: userId } });
   }
