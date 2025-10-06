@@ -61,7 +61,7 @@ export class AuthGoogleController {
       }
 
       return response.redirect(
-        `${this.configService.frontendUrl}/login?access-token=${accessToken}`,
+        `${this.configService.frontendUrl}/login/success?access-token=${accessToken}`,
       );
     }
 
