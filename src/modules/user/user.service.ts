@@ -39,6 +39,7 @@ export class UserService {
     const take = limit;
     const where: Prisma.UserWhereInput = {
       ...(query.keyword && {
+        role: UserRole.PARENT,
         name: { contains: query.keyword, mode: 'insensitive' },
       }),
     };
@@ -47,6 +48,19 @@ export class UserService {
         where,
         skip,
         take,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          verified: true,
+          createdAt: true,
+          isRegistered: true,
+          profile: {
+            select: {
+              avatarUrl: true,
+            },
+          },
+        },
       }),
       this.prisma.user.count({ where }),
     ]);
