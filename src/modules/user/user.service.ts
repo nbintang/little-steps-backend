@@ -39,9 +39,9 @@ export class UserService {
     const take = limit;
     const where: Prisma.UserWhereInput = {
       ...(query.keyword && {
-        role: UserRole.PARENT,
         name: { contains: query.keyword, mode: 'insensitive' },
       }),
+      role: UserRole.PARENT,
     };
     const [data, total] = await Promise.all([
       this.prisma.user.findMany({
