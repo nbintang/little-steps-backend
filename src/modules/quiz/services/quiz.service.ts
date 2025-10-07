@@ -67,6 +67,7 @@ export class QuizService {
           title: true,
           rating: true,
           description: true,
+          timeLimit: true,
           createdAt: true,
           category: {
             select: {
