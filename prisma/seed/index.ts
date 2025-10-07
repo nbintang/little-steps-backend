@@ -171,35 +171,55 @@ async function main() {
   );
   console.log(`📚 Created ${categories.length} categories.`);
 
-  // ----------------------------------------
   // Create Content
-  // ----------------------------------------
-  console.log('📝 Creating content...');
+  console.log('📚 Creating content...');
+  const contents = [];
+  const contentTypes: ContentType[] = ['ARTICLE', 'FICTION_STORY'];
+  const contentStatuses: ContentStatus[] = ['DRAFT', 'PUBLISHED'];
   for (let i = 0; i < 20; i++) {
-    const title = faker.lorem.sentence(5);
-    await prisma.content.create({
+    const contentType = faker.helpers.arrayElement(contentTypes);
+    const randomUser = faker.helpers.arrayElement(allUsers);
+    const status = faker.helpers.arrayElement(contentStatuses);
+
+    const contentJson =
+      contentType === 'ARTICLE'
+        ? {
+            type: 'doc',
+            content: [
+              {
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: faker.lorem.sentence() }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraph() }],
+              },
+            ],
+          }
+        : null;
+
+    const coverImage = faker.image.urlLoremFlickr({ category: 'nature' });
+
+    const content = await prisma.content.create({
       data: {
-        title,
-        slug: faker.helpers.slugify(title).toLowerCase(),
-        type: faker.helpers.arrayElement([
-          ContentType.ARTICLE,
-          ContentType.FICTION_STORY,
-        ]),
-        contentJson: {
-          blocks: [
-            { type: 'paragraph', data: { text: faker.lorem.paragraphs(5) } },
-          ],
-        },
-        excerpt: faker.lorem.paragraph(),
-        coverImage: faker.image.urlLoremFlickr({ category: 'nature' }),
-        status: ContentStatus.PUBLISHED,
-        createdBy: faker.helpers.arrayElement(allUsers).id,
-        categoryId: faker.helpers.arrayElement(categories).id,
+        title: faker.lorem.sentence(),
+        slug: faker.lorem.slug({ min: 3, max: 5 }),
+        type: contentType,
+        contentJson,
+        excerpt: faker.lorem.sentences(2),
+        coverImage,
+        status,
+        createdBy: randomUser.id,
       },
     });
-  }
-  console.log('📝 Content created.');
 
+    contents.push(content);
+  }
   // ----------------------------------------
   // Create Quizzes, Questions, and Answers
   // ----------------------------------------
@@ -217,7 +237,24 @@ async function main() {
           create: Array.from({
             length: faker.number.int({ min: 5, max: 10 }),
           }).map(() => ({
-            questionJson: { text: `${faker.lorem.sentence()}?` },
+            questionJson: {
+              type: 'doc',
+              content: [
+                {
+                  type: 'heading',
+                  attrs: { level: 1 },
+                  content: [{ type: 'text', text: faker.lorem.sentence() }],
+                },
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+                },
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: faker.lorem.paragraph() }],
+                },
+              ],
+            },
             answers: {
               create: [
                 ...Array.from({ length: 3 }).map(() => ({
