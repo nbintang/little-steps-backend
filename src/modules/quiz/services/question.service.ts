@@ -63,42 +63,59 @@ export class QuestionService {
       throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const createdQuestions = await Promise.all(
-        createQuestionsDto.map((q) =>
-          tx.question.create({
+    return this.prisma.$transaction(
+      async (tx) => {
+        const createdQuestionIds: string[] = [];
+        for (const q of createQuestionsDto) {
+          const createdQ = await tx.question.create({
             data: {
               quizId,
               questionJson: q.questionJson,
-              answers: {
-                create: q.answers.map((a) => ({
-                  text: a.text,
-                  imageAnswer: a.imageAnswer,
-                  isCorrect: a.isCorrect,
-                })),
-              },
             },
-            select: {
-              id: true,
-              questionJson: true,
-              answers: {
-                select: {
-                  id: true,
-                  text: true,
-                  imageAnswer: true,
-                  isCorrect: true,
-                },
-              },
-            },
-          }),
-        ),
-      );
+            select: { id: true },
+          });
+          createdQuestionIds.push(createdQ.id);
+        }
+        const answersBulk: Array<{
+          questionId: string;
+          text: string;
+          imageAnswer?: string | null;
+          isCorrect: boolean;
+        }> = [];
 
-      return {
-        message: 'Questions berhasil ditambahkan ke quiz',
-        data: createdQuestions,
-      };
-    });
+        for (let i = 0; i < createQuestionsDto.length; i++) {
+          const q = createQuestionsDto[i];
+          const qId = createdQuestionIds[i];
+          for (const a of q.answers) {
+            answersBulk.push({
+              questionId: qId,
+              text: a.text,
+              imageAnswer: a.imageAnswer ?? null,
+              isCorrect: a.isCorrect,
+            });
+          }
+        }
+
+        // 3) bulk create answers (single round-trip)
+        if (answersBulk.length > 0) {
+          await tx.answer.createMany({
+            data: answersBulk,
+          });
+        }
+
+        // 4) (optional) fetch created questions with answers
+        const createdQuestions = await tx.question.findMany({
+          where: { id: { in: createdQuestionIds } },
+          include: { answers: true },
+        });
+
+        return {
+          message: 'Questions berhasil ditambahkan ke quiz',
+          data: createdQuestions,
+        };
+      },
+      { timeout: 20_000 },
+    );
   }
 
   async findQuestionDetailFromQuizById(quizId: string, questionId: string) {
