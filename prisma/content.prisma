@@ -4,7 +4,7 @@ model Content {
   slug        String        @unique
   type        ContentType
   contentJson Json?         @map("content_json")
-  excerpt     String?
+  excerpt     String?       @db.VarChar(300)
   coverImage  String?       @map("cover_image")
   rating      Float?        @default(0)
   status      ContentStatus @default(DRAFT)
