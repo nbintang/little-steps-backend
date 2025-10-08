@@ -1,6 +1,5 @@
 import {
   ArgumentsHost,
-  BadRequestException,
   Catch,
   HttpException,
   HttpStatus,
@@ -31,6 +30,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    this.logger.error(exception.message);
     const responseMessage =
       exception instanceof HttpException
         ? exception.getResponse()
@@ -50,35 +50,6 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         statusCode: status,
         success: false,
         message: responseMessage,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      };
-    }
-
-    if (exception instanceof BadRequestException) {
-      const response = exception.getResponse();
-      const validationErrors = (response as any)?.message;
-      const errors = Array.isArray(validationErrors)
-        ? validationErrors
-        : [validationErrors].filter(Boolean);
-      responseBody = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        success: false,
-        message: 'Validation failed',
-        errorMessages: errors
-          .map((err: any) => {
-            if (typeof err === 'string') return { field: '', message: err };
-            if (err.constraints)
-              return Object.values(err.constraints).map((message) => ({
-                field: err.property || '',
-                message,
-              }));
-            return {
-              field: err.property || '',
-              message: err.message || 'Invalid value',
-            };
-          })
-          .flat(),
         timestamp: new Date().toISOString(),
         path: request.url,
       };

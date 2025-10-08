@@ -1,8 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { InputQuestionDto } from '../dto/question/input-question.dto';
 import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Question } from '@prisma/client';
 
 @Injectable()
 export class QuestionService {
@@ -253,91 +257,89 @@ export class QuestionService {
 
   async updateQuestionsInQuiz(
     quizId: string,
-    questionId: string,
     updateQuestionsDto: InputQuestionDto[],
   ) {
     const existingQuiz = await this.findExistingQuiz(quizId);
-    if (!existingQuiz) {
-      throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
-    }
+    if (!existingQuiz) throw new NotFoundException(`Quiz tidak ditemukan`);
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        const updatedQuestions = [];
+    try {
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const updatedQuestions: Question[] = [];
 
-        for (const q of updateQuestionsDto) {
-          const existingQuestion = await tx.question.findFirst({
-            where: { id: questionId, quizId },
-            select: { id: true },
-          });
-
-          let updatedQ;
-
-          if (existingQuestion) {
-            updatedQ = await tx.question.update({
-              where: { id: questionId },
-              data: {
-                questionJson: q.questionJson,
-                answers: {
-                  deleteMany: { questionId: questionId },
-                  create: q.answers.map((a) => ({
-                    text: a.text,
-                    imageAnswer: a.imageAnswer,
-                    isCorrect: a.isCorrect,
-                  })),
-                },
-              },
-              select: {
-                id: true,
-                questionJson: true,
-                answers: {
-                  select: {
-                    id: true,
-                    text: true,
-                    imageAnswer: true,
-                    isCorrect: true,
+          for (const q of updateQuestionsDto) {
+            let updatedQ;
+            if (q.id) {
+              updatedQ = await tx.question.update({
+                where: { id: q.id },
+                data: {
+                  questionJson: q.questionJson,
+                  answers: {
+                    deleteMany: { questionId: q.id },
+                    create: q.answers.map((a) => ({
+                      text: a.text,
+                      imageAnswer: a.imageAnswer,
+                      isCorrect: a.isCorrect,
+                    })),
                   },
                 },
-              },
-            });
-          } else {
-            updatedQ = await tx.question.create({
-              data: {
-                quizId,
-                questionJson: q.questionJson,
-                answers: {
-                  create: q.answers.map((a) => ({
-                    text: a.text,
-                    imageAnswer: a.imageAnswer,
-                    isCorrect: a.isCorrect,
-                  })),
-                },
-              },
-              select: {
-                id: true,
-                questionJson: true,
-                answers: {
-                  select: {
-                    id: true,
-                    text: true,
-                    imageAnswer: true,
-                    isCorrect: true,
+                select: {
+                  id: true,
+                  questionJson: true,
+                  answers: {
+                    select: {
+                      id: true,
+                      text: true,
+                      imageAnswer: true,
+                      isCorrect: true,
+                    },
                   },
                 },
-              },
-            });
+              });
+            } else {
+              updatedQ = await tx.question.create({
+                data: {
+                  quizId,
+                  questionJson: q.questionJson,
+                  answers: {
+                    create: q.answers.map((a) => ({
+                      text: a.text,
+                      imageAnswer: a.imageAnswer,
+                      isCorrect: a.isCorrect,
+                    })),
+                  },
+                },
+                select: {
+                  id: true,
+                  questionJson: true,
+                  answers: {
+                    select: {
+                      id: true,
+                      text: true,
+                      imageAnswer: true,
+                      isCorrect: true,
+                    },
+                  },
+                },
+              });
+            }
+            updatedQuestions.push(updatedQ);
           }
 
-          updatedQuestions.push(updatedQ);
-        }
-
-        return {
-          message: 'Questions berhasil diperbarui',
-          data: updatedQuestions,
-        };
-      },
-      { timeout: 20_000 },
-    );
+          return {
+            message: 'Questions berhasil diperbarui',
+            data: updatedQuestions,
+          };
+        },
+        { timeout: 60000 },
+      );
+    } catch (error: any) {
+      // lempar error asli sebagai response object
+      throw new BadRequestException({
+        message: 'Update questions failed',
+        error: error?.meta || error?.message || error,
+      });
+    }
   }
 
   /**

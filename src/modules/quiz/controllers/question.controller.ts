@@ -20,7 +20,6 @@ import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { QueryQuizDto } from '../dto/quiz/query-quiz.dto';
-
 @Roles(UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 @Controller('protected/quizzes/:quizId/questions')
@@ -58,7 +57,7 @@ export class QuestionController {
       createQuestionDto,
     );
   }
-  @Post('/bulk')
+  @Post('bulk')
   @HttpCode(HttpStatus.CREATED)
   async addQuestionsToQuiz(
     @Param('quizId') quizId: string,
@@ -69,6 +68,17 @@ export class QuestionController {
       createQuestionDto,
     );
   }
+  @Patch('bulk')
+  @HttpCode(HttpStatus.OK)
+  async updateQuestionsInQuiz(
+    @Param('quizId') quizId: string,
+    @Body() updateQuestionsDto: InputQuestionDto[],
+  ) {
+    return await this.questionService.updateQuestionsInQuiz(
+      quizId,
+      updateQuestionsDto,
+    );
+  }
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   async updateQuestionInQuiz(
@@ -77,20 +87,6 @@ export class QuestionController {
     @Body() updateQuestionDto: InputQuestionDto,
   ) {
     return await this.questionService.updateQuestionInQuiz(
-      quizId,
-      questionId,
-      updateQuestionDto,
-    );
-  }
-
-  @Patch(':id/bulk')
-  @HttpCode(HttpStatus.OK)
-  async updateQuestionsInQuiz(
-    @Param('quizId') quizId: string,
-    @Param('id') questionId: string,
-    @Body() updateQuestionDto: InputQuestionDto[],
-  ) {
-    return await this.questionService.updateQuestionsInQuiz(
       quizId,
       questionId,
       updateQuestionDto,

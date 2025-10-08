@@ -5,12 +5,18 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import { ConfigService } from './config/config.service';
 import { CustomValidationPipe } from './common/pipes/custom-validation.pipe';
+import { BadRequestException } from '@nestjs/common';
+import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
+
   const config = app.get(ConfigService);
 
+  // --- Middleware ---
   app.enableCors({
     origin: [config.frontendUrl],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -19,21 +25,23 @@ async function bootstrap() {
 
   app.useBodyParser('json', { limit: '10mb' });
   app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
+  app.use(cookieParser());
+  app.use(compression());
 
+  // --- Global Validation Pipe ---
   app.useGlobalPipes(
     new CustomValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      skipMissingProperties: false,
-      skipNullProperties: false,
       stopAtFirstError: false,
-      skipUndefinedProperties: false,
+      exceptionFactory: (errors) => new BadRequestException(errors),
     }),
   );
-
-  app.use(cookieParser());
-  app.use(compression());
+  const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  // --- Global Interceptor & Filter ---
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
+  app.useGlobalInterceptors(new ResponseInterceptor(logger));
 
   await app.listen(config.port ?? 3000);
 }
