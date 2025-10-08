@@ -63,6 +63,7 @@ async function main() {
           verified: true,
           acceptedTerms: true,
           provider: AuthProvider.LOCAL,
+          isRegistered: true,
         },
       }),
     ),
@@ -204,7 +205,8 @@ async function main() {
           }
         : null;
 
-    const coverImage = faker.image.urlLoremFlickr({ category: 'nature' });
+    const coverImage =
+      'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parents_and_their_baby.jpg';
 
     const content = await prisma.content.create({
       data: {
