@@ -48,6 +48,7 @@ async function main() {
       role: UserRole.ADMINISTRATOR,
       verified: true,
       acceptedTerms: true,
+      isRegistered: true,
     },
   });
 

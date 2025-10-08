@@ -218,7 +218,6 @@ export class QuestionService {
       );
     }
 
-    // Update question + hapus jawaban lama + buat ulang jawaban
     const updatedQuestion = await this.prisma.question.update({
       where: { id: questionId },
       data: {
@@ -250,6 +249,95 @@ export class QuestionService {
       message: 'Question berhasil diperbarui',
       data: updatedQuestion,
     };
+  }
+
+  async updateQuestionsInQuiz(
+    quizId: string,
+    questionId: string,
+    updateQuestionsDto: InputQuestionDto[],
+  ) {
+    const existingQuiz = await this.findExistingQuiz(quizId);
+    if (!existingQuiz) {
+      throw new NotFoundException(`Quiz dengan ID ${quizId} tidak ditemukan`);
+    }
+
+    return this.prisma.$transaction(
+      async (tx) => {
+        const updatedQuestions = [];
+
+        for (const q of updateQuestionsDto) {
+          const existingQuestion = await tx.question.findFirst({
+            where: { id: questionId, quizId },
+            select: { id: true },
+          });
+
+          let updatedQ;
+
+          if (existingQuestion) {
+            updatedQ = await tx.question.update({
+              where: { id: questionId },
+              data: {
+                questionJson: q.questionJson,
+                answers: {
+                  deleteMany: { questionId: questionId },
+                  create: q.answers.map((a) => ({
+                    text: a.text,
+                    imageAnswer: a.imageAnswer,
+                    isCorrect: a.isCorrect,
+                  })),
+                },
+              },
+              select: {
+                id: true,
+                questionJson: true,
+                answers: {
+                  select: {
+                    id: true,
+                    text: true,
+                    imageAnswer: true,
+                    isCorrect: true,
+                  },
+                },
+              },
+            });
+          } else {
+            updatedQ = await tx.question.create({
+              data: {
+                quizId,
+                questionJson: q.questionJson,
+                answers: {
+                  create: q.answers.map((a) => ({
+                    text: a.text,
+                    imageAnswer: a.imageAnswer,
+                    isCorrect: a.isCorrect,
+                  })),
+                },
+              },
+              select: {
+                id: true,
+                questionJson: true,
+                answers: {
+                  select: {
+                    id: true,
+                    text: true,
+                    imageAnswer: true,
+                    isCorrect: true,
+                  },
+                },
+              },
+            });
+          }
+
+          updatedQuestions.push(updatedQ);
+        }
+
+        return {
+          message: 'Questions berhasil diperbarui',
+          data: updatedQuestions,
+        };
+      },
+      { timeout: 20_000 },
+    );
   }
 
   /**

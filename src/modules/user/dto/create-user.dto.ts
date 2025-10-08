@@ -26,7 +26,7 @@ export class CreateUserDto implements Omit<Prisma.UserCreateInput, 'profile'> {
   name: string;
 
   @IsString()
-  @MinLength(8, { message: 'Password minimal 8 karakter' }) 
+  @MinLength(8, { message: 'Password minimal 8 karakter' })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,20}$/, {
     message:
       'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol',

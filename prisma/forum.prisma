@@ -1,9 +1,10 @@
 model ForumThread {
-  id        String   @id @default(uuid())
-  title     String
-  createdBy String   @map("created_by")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   author User        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   posts  ForumPost[]

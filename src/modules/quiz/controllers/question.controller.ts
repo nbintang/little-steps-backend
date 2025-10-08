@@ -82,6 +82,21 @@ export class QuestionController {
       updateQuestionDto,
     );
   }
+
+  @Patch(':id/bulk')
+  @HttpCode(HttpStatus.OK)
+  async updateQuestionsInQuiz(
+    @Param('quizId') quizId: string,
+    @Param('id') questionId: string,
+    @Body() updateQuestionDto: InputQuestionDto[],
+  ) {
+    return await this.questionService.updateQuestionsInQuiz(
+      quizId,
+      questionId,
+      updateQuestionDto,
+    );
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async deleteQuestionFromQuiz(
