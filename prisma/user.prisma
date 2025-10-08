@@ -1,41 +1,40 @@
 model User {
-    id            String       @id @default(uuid())
-    name          String
-    email         String       @unique @db.VarChar(255)
-    password      String?
-    verified      Boolean      @default(false)
-    acceptedTerms Boolean      @default(false) @map("accepted_terms")
-    acceptedAt    DateTime?    @map("accepted_at")
-    isRegistered  Boolean      @default(false) @map("is_registered")
-    provider      AuthProvider @default(LOCAL)
-    providerId    String?      @map("provider_id")
-    role          UserRole     @default(PARENT)
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique @db.VarChar(255)
+  password      String?
+  provider      AuthProvider   @default(LOCAL)
+  providerId    String?        @map("provider_id")
+  role          UserRole       @default(PARENT)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
+  verified      Boolean        @default(false)
+  acceptedAt    DateTime?      @map("accepted_at")
+  acceptedTerms Boolean        @default(false) @map("accepted_terms")
+  isRegistered  Boolean        @default(false) @map("is_registered")
+  childProfiles ChildProfile[]
+  contents      Content[]
+  forumPosts    ForumPost[]
+  forumThreads  ForumThread[]
+  profile       Profile?
+  quizzes       Quiz[]
 
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-    profile       Profile?
-    childProfiles ChildProfile[]
-    contents      Content[]
-    quizzes       Quiz[]
-    forumThreads  ForumThread[]
-    forumPosts    ForumPost[]
-
-    @@map("users")
+  @@map("users")
 }
 
 model Profile {
-    id        String    @id @default(uuid())
-    userId    String    @unique @map("user_id")
-    fullName  String?   @map("full_name")
-    phone     String?
-    bio       String?
-    avatarUrl String?   @map("avatar_url")
-    birthDate DateTime? @map("birth_date")
-    createdAt DateTime  @default(now()) @map("created_at")
-    updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
-    latitude  Float?
-    longitude Float?
-    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    @@map("profile")
+  id        String    @id @default(uuid())
+  userId    String    @unique @map("user_id")
+  fullName  String?   @map("full_name")
+  phone     String?
+  bio       String?
+  avatarUrl String?   @map("avatar_url")
+  birthDate DateTime? @map("birth_date")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  latitude  Float?
+  longitude Float?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile")
 }

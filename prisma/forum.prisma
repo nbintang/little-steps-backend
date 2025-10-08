@@ -1,27 +1,25 @@
 model ForumThread {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   title       String
+  createdBy   String      @map("created_by")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
   description String?
-  createdBy   String   @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-
-  author User        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  posts  ForumPost[]
+  posts       ForumPost[]
+  author      User        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("forum_threads")
 }
 
 model ForumPost {
-  id        String   @id @default(uuid())
-  threadId  String   @map("thread_id")
-  authorId  String   @map("author_id")
+  id        String      @id @default(uuid())
+  threadId  String      @map("thread_id")
+  authorId  String      @map("author_id")
   content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @default(now()) @updatedAt @map("updated_at")
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@map("forum_posts")
 }

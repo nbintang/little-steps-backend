@@ -1,21 +1,20 @@
 model Content {
   id          String        @id @default(uuid())
   title       String
-  slug        String        @unique
   type        ContentType
-  contentJson Json?         @map("content_json")
-  excerpt     String?       @db.VarChar(300)
-  coverImage  String?       @map("cover_image")
-  rating      Float?        @default(0)
-  status      ContentStatus @default(DRAFT)
-  isEdited    Boolean?
-  categoryId  String?       @map("category_id")
   createdBy   String        @map("created_by")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
-
-  author   User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  contentJson Json?         @map("content_json")
+  excerpt     String?       @db.VarChar(300)
+  status      ContentStatus @default(DRAFT)
+  slug        String        @unique
+  coverImage  String?       @map("cover_image")
+  isEdited    Boolean?
+  categoryId  String?       @map("category_id")
+  rating      Float?        @default(0)
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  author      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("contents")
 }
