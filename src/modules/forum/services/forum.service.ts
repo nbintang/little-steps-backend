@@ -51,7 +51,13 @@ export class ForumService {
           id: true,
           title: true,
           createdAt: true,
-          author: { select: { id: true, name: true } },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              profile: { select: { avatarUrl: true } },
+            },
+          },
         },
       }),
       this.prisma.forumThread.count({ where }),
@@ -74,7 +80,13 @@ export class ForumService {
       select: {
         id: true,
         title: true,
-        author: { select: { id: true, name: true } },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profile: { select: { avatarUrl: true } },
+          },
+        },
         createdAt: true,
       },
     });

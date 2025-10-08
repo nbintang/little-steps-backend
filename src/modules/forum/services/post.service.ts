@@ -36,8 +36,13 @@ export class PostService {
           id: true,
           content: true,
           createdAt: true,
-
-          author: { select: { id: true, name: true } },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              profile: { select: { avatarUrl: true } },
+            },
+          },
         },
       }),
       this.prisma.forumPost.count({ where }),
@@ -68,7 +73,13 @@ export class PostService {
         id: true,
         content: true,
         createdAt: true,
-        author: { select: { id: true, name: true } },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profile: { select: { avatarUrl: true } },
+          },
+        },
       },
     });
     return { message: 'Post berhasil dibuat', data: post };
@@ -90,7 +101,13 @@ export class PostService {
         id: true,
         content: true,
         createdAt: true,
-        author: { select: { id: true, name: true } },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profile: { select: { avatarUrl: true } },
+          },
+        },
       },
     });
 
