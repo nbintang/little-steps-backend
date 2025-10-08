@@ -265,11 +265,29 @@ export class QuestionService {
     try {
       return await this.prisma.$transaction(
         async (tx) => {
+          // 1. Get IDs dari payload yang akan di-update/keep
+          const payloadQuestionIds = updateQuestionsDto
+            .filter((q) => q.id)
+            .map((q) => q.id!);
+
+          await tx.question.deleteMany({
+            where: {
+              quizId,
+              id: {
+                notIn:
+                  payloadQuestionIds.length > 0
+                    ? payloadQuestionIds
+                    : ['dummy-id-never-exists'],
+              },
+            },
+          });
+
           const updatedQuestions: Question[] = [];
 
           for (const q of updateQuestionsDto) {
             let updatedQ;
             if (q.id) {
+              // UPDATE existing question
               updatedQ = await tx.question.update({
                 where: { id: q.id },
                 data: {
@@ -334,7 +352,6 @@ export class QuestionService {
         { timeout: 60000 },
       );
     } catch (error: any) {
-      // lempar error asli sebagai response object
       throw new BadRequestException({
         message: 'Update questions failed',
         error: error?.meta || error?.message || error,
