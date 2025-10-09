@@ -22,7 +22,7 @@ export class ForumService {
       select: {
         id: true,
         title: true,
-        // description: true,
+        description: true,
         createdAt: true,
       },
     });
@@ -51,7 +51,7 @@ export class ForumService {
           id: true,
           title: true,
           createdAt: true,
-          // description: true,
+          description: true,
           author: {
             select: {
               id: true,
@@ -81,7 +81,7 @@ export class ForumService {
       select: {
         id: true,
         title: true,
-        // description: true,
+        description: true,
         author: {
           select: {
             id: true,
@@ -111,7 +111,7 @@ export class ForumService {
       select: {
         id: true,
         title: true,
-        // description: true,
+        description: true,
         createdAt: true,
       },
     });

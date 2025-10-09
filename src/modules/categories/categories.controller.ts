@@ -50,6 +50,10 @@ export class CategoriesController {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.categoriesService.remove(id);
+  }
   @Delete()
   removeMany(@Body() dto: DeleteCategoriesDto) {
     return this.categoriesService.removeMany(dto);

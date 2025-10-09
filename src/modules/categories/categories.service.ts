@@ -35,6 +35,7 @@ export class CategoriesService {
       this.prisma.category.findMany({
         where,
         skip,
+        orderBy: { createdAt: 'desc' },
         take,
       }),
       this.prisma.category.count({ where }),
@@ -71,6 +72,11 @@ export class CategoriesService {
           : undefined,
       },
     });
+    return { data: category };
+  }
+
+  async remove(id: string) {
+    const category = await this.prisma.category.delete({ where: { id } });
     return { data: category };
   }
 
