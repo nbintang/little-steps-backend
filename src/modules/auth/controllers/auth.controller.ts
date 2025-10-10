@@ -31,12 +31,16 @@ export class AuthController {
     private readonly logger: LoggerService,
   ) {}
 
-  private setCookieOptions(isProduction: boolean): CookieOptions {
+  // ✅ 1️⃣ Gunakan isDevelopment agar cookie tetap konsisten di dev dan prod
+  private isDevelopment = process.env.NODE_ENV !== 'production';
+
+  private getCookieOptions(): CookieOptions {
     return {
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
+      sameSite: this.isDevelopment ? 'lax' : 'none',
+      secure: !this.isDevelopment,
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      maxAge: 1000 * 60 * 60 * 24, // 24 jam
+      path: '/', // penting agar bisa dihapus di logout
     };
   }
 
@@ -60,32 +64,23 @@ export class AuthController {
     const existedTokenCookie = request.cookies['refreshToken'];
     if (existedTokenCookie) {
       try {
-        const isValidToken =
-          await this.authService.validateRefreshToken(existedTokenCookie);
+        const isValidToken = await this.authService.validateRefreshToken(existedTokenCookie);
         if (isValidToken) {
           throw new UnauthorizedException('User already signed in!');
         }
-        response.clearCookie(
-          'refreshToken',
-          this.setCookieOptions(process.env.NODE_ENV === 'production'),
-        );
+        response.clearCookie('refreshToken', this.getCookieOptions());
       } catch (error) {
         this.logger.log(error);
-        response.clearCookie(
-          'refreshToken',
-          this.setCookieOptions(process.env.NODE_ENV === 'production'),
-        );
+        response.clearCookie('refreshToken', this.getCookieOptions());
       }
     }
+
     const { accessToken, refreshToken } = await this.authService.login(dto);
+
     if (accessToken && refreshToken) {
-      const isProduction = process.env.NODE_ENV === 'production';
-      response.cookie(
-        'refreshToken',
-        refreshToken,
-        this.setCookieOptions(isProduction),
-      );
+      response.cookie('refreshToken', refreshToken, this.getCookieOptions());
     }
+
     return {
       data: {
         accessToken,
@@ -111,9 +106,8 @@ export class AuthController {
   @Delete('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) response: Response) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    response.clearCookie('refreshToken', this.setCookieOptions(isProduction));
-    response.clearCookie('childToken', this.setCookieOptions(isProduction));
+    response.clearCookie('refreshToken', this.getCookieOptions());
+    response.clearCookie('childToken', this.getCookieOptions());
     return await this.authService.logout();
   }
 }
