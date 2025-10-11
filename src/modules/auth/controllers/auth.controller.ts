@@ -4,13 +4,11 @@ import {
   Body,
   Delete,
   Req,
-  Res,
-  UnauthorizedException,
-  Inject,
+  Res, Inject,
   LoggerService,
   HttpCode,
   HttpStatus,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 
@@ -30,18 +28,14 @@ export class AuthController {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: LoggerService,
   ) {}
-
-  // ✅ 1️⃣ Gunakan isDevelopment agar cookie tetap konsisten di dev dan prod
-  private isDevelopment = process.env.NODE_ENV !== 'production';
-
-  private getCookieOptions(): CookieOptions {
-    return {
-      sameSite: this.isDevelopment ? 'lax' : 'none',
-      secure: !this.isDevelopment,
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, // 24 jam
-      path: '/', // penting agar bisa dihapus di logout
-    };
+  private isDevelopment = process.env.NODE_ENV === 'development';
+  private getCookieOptions(): CookieOptions { 
+   return {
+    path: "/",
+    sameSite: this.isDevelopment ? "lax" : "none",
+    secure: !this.isDevelopment,
+    httpOnly: true,
+  };
   }
 
   @Post('register')
@@ -58,23 +52,8 @@ export class AuthController {
   @UseGuards(ProviderGuard)
   async login(
     @Res({ passthrough: true }) response: Response,
-    @Req() request: Request,
     @Body() dto: LoginDto,
   ) {
-    const existedTokenCookie = request.cookies['refreshToken'];
-    if (existedTokenCookie) {
-      try {
-        const isValidToken = await this.authService.validateRefreshToken(existedTokenCookie);
-        if (isValidToken) {
-          throw new UnauthorizedException('User already signed in!');
-        }
-        response.clearCookie('refreshToken', this.getCookieOptions());
-      } catch (error) {
-        this.logger.log(error);
-        response.clearCookie('refreshToken', this.getCookieOptions());
-      }
-    }
-
     const { accessToken, refreshToken } = await this.authService.login(dto);
 
     if (accessToken && refreshToken) {
