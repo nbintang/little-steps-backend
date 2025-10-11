@@ -109,6 +109,7 @@ export class AuthService {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User is not registered');
     const isPasswordValid = await this.compareHash(password, user.password);
+    this.logger.log('isPasswordValid', isPasswordValid);
     if (!isPasswordValid) throw new UnauthorizedException('Incorrect Password');
     this.logger.log('user', user);
     return await this.generateJwtTokens({

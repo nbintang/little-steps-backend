@@ -8,6 +8,7 @@ import { ServerResponseDto } from '../../../common/dto/server-response.dto';
 import { slugify } from 'transliteration';
 import { nanoid } from 'nanoid';
 import { RateContentDto } from '../dto/rate-content.dto';
+import { QueryPublicContentDto } from '../dto/query-public-content.dto';
 
 @Injectable()
 export class ContentService {
@@ -118,14 +119,18 @@ export class ContentService {
       },
     };
   }
+
   async findPublishedContent(
-    query: QueryContentDto,
+    query: QueryPublicContentDto,
   ): Promise<ServerResponseDto> {
-    const page = (query.page || 1) - 1;
-    const limit = query.limit || 10;
-    const skip = page * limit;
+    // page front-end : 1-based. convert to 0-based for skip calculation
+    const pageZeroBased = (query.page ?? 1) - 1;
+    const limit = query.limit ?? 10;
+    const skip = pageZeroBased * limit;
     const take = limit;
-    const where: Prisma.ContentWhereInput = {
+
+    // common where (without status)
+    const whereBase: Prisma.ContentWhereInput = {
       ...(query.type && { type: query.type }),
       ...(query.keyword && {
         OR: [
@@ -134,12 +139,20 @@ export class ContentService {
         ],
       }),
     };
+
+    // ensure we filter only published for this public endpoint
+    const whereWithStatus: Prisma.ContentWhereInput = {
+      ...whereBase,
+      status: ContentStatus.PUBLISHED,
+    };
+
+    // determine ordering: prefer `sort` (new param), fallback to boolean `highest`
+    const orderBy: Prisma.ContentOrderByWithRelationInput =
+      query.sort === 'highest' ? { rating: 'desc' } : { createdAt: 'desc' };
+
     const [data, total] = await Promise.all([
       this.prisma.content.findMany({
-        where: {
-          ...where,
-          status: ContentStatus.PUBLISHED,
-        },
+        where: whereWithStatus,
         skip,
         take,
         select: {
@@ -164,17 +177,22 @@ export class ContentService {
           createdAt: true,
           updatedAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
-      this.prisma.content.count({ where }),
+      // IMPORTANT: count must use same filters (including status)
+      this.prisma.content.count({
+        where: whereWithStatus,
+      }),
     ]);
+
     return {
       data,
       meta: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
+        // convert back to 1-based page for client
+        currentPage: pageZeroBased + 1,
+        totalPages: Math.ceil(total / take),
         totalItems: total,
-        itemsPerPage: limit,
+        itemsPerPage: take,
       },
     };
   }
