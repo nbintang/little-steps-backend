@@ -22,15 +22,22 @@ import { Request } from 'express';
 import { PostService } from '../services/post.service';
 import { QueryForumDto } from '../dto/query-forum.dto';
 
-@Controller('protected/forum/:forumId/posts')
+@Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {}
-  @Get()
+  @Get('forum/:forumId/posts')
   async getPostFromForumId(
     @Param('forumId') forumId: string,
     @Query() query: QueryForumDto,
   ) {
     return await this.postService.findAllPosts(forumId, query);
+  }
+  @Get('forum/:forumId/posts/:id')
+  async getPostById(
+    @Param('forumId') forumId: string,
+    @Param('id') id: string,
+  ) {
+    return await this.postService.findPostById(id, forumId);
   }
 
   @Roles(UserRole.PARENT, UserRole.ADMINISTRATOR)
@@ -40,7 +47,7 @@ export class PostController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Post()
+  @Post('protected/forum/:forumId/posts')
   async createPost(
     @Body() dto: CreatePostDto,
     @Param('forumId') forumId: string,
@@ -48,6 +55,7 @@ export class PostController {
   ) {
     return await this.postService.createPost(request.user.sub, forumId, dto);
   }
+
   @Roles(UserRole.PARENT, UserRole.ADMINISTRATOR)
   @UseGuards(
     AccessTokenGuard,
@@ -55,7 +63,7 @@ export class PostController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Patch(':id')
+  @Patch('protected/forum/:forumId/posts/:id')
   async updatePost(
     @Param('id') id: string,
     @Param('forumId') forumId: string,
@@ -76,7 +84,7 @@ export class PostController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Delete(':id')
+  @Delete('protected/forum/:forumId/posts/:id')
   async deletePost(
     @Param('id') id: string,
     @Req() request: Request,

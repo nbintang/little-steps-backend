@@ -22,7 +22,7 @@ import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard
 import { QueryForumDto } from '../dto/query-forum.dto';
 import { Request } from 'express';
 
-@Controller('protected/forum')
+@Controller()
 export class ForumController {
   constructor(private readonly forumService: ForumService) {}
 
@@ -33,18 +33,18 @@ export class ForumController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Post()
+  @Post('protected/forum')
   async createForum(@Body() dto: CreateForumDto, @Req() request: Request) {
     const userId = request.user.sub;
     return await this.forumService.createForum(userId, dto);
   }
 
-  @Get()
+  @Get('/forum')
   async findAll(@Query() query: QueryForumDto) {
     return await this.forumService.findAllForum(query);
   }
 
-  @Get(':id')
+  @Get('/forum/:id')
   async findOne(@Param('id') id: string) {
     return await this.forumService.findForumById(id);
   }
@@ -56,7 +56,7 @@ export class ForumController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Patch(':id')
+  @Patch('protected/forum/:id')
   async updateForum(
     @Param('id') id: string,
     @Body() dto: UpdateForumDto,
@@ -72,7 +72,7 @@ export class ForumController {
     VerifyEmailGuard,
     CompletedProfileGuard,
   )
-  @Delete(':id')
+  @Delete('protected/forum/:id')
   async deleteForum(@Param('id') id: string, @Req() request: Request) {
     return await this.forumService.deleteForumById(id, request.user.sub);
   }

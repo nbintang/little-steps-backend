@@ -8,6 +8,7 @@ import { CreateForumDto } from '../dto/create-forum.dto';
 import { UpdateForumDto } from '../dto/update-forum.dto';
 import { QueryForumDto } from '../dto/query-forum.dto';
 import { Prisma } from '@prisma/client';
+import { ForumSort } from '../enums/forum.enum';
 
 @Injectable()
 export class ForumService {
@@ -17,15 +18,21 @@ export class ForumService {
     const thread = await this.prisma.forumThread.create({
       data: {
         title: createForumDto.title,
-        createdBy: userId,
+        description: createForumDto.description,
+        author: { connect: { id: userId } }, // ganti createdBy
+        category: createForumDto.categoryId
+          ? { connect: { id: createForumDto.categoryId } }
+          : undefined,
       },
       select: {
         id: true,
         title: true,
         description: true,
+        category: { select: { id: true, name: true, slug: true } },
         createdAt: true,
       },
     });
+
     return { message: 'Thread berhasil dibuat', data: thread };
   }
 
@@ -38,20 +45,45 @@ export class ForumService {
       ...(searchKeyword && {
         title: { contains: searchKeyword, mode: 'insensitive' },
       }),
+      ...(query.userId && { author: { id: query.userId } }),
+      ...(query.category && {
+        category: {
+          OR: [
+            { name: { contains: query.category, mode: 'insensitive' } },
+            { slug: { contains: query.category, mode: 'insensitive' } },
+          ],
+        },
+      }),
     };
+    const orderBy: Prisma.ForumThreadOrderByWithRelationInput =
+      query.sort === ForumSort.OLDEST
+        ? { createdAt: 'asc' }
+        : query.sort === ForumSort.MOST_ACTIVE
+          ? { posts: { _count: 'desc' } }
+          : query.sort === ForumSort.RECENTLY_UPDATED
+            ? { updatedAt: 'desc' }
+            : { createdAt: 'desc' }; // default newest
+
     const [forum, totalCount] = await Promise.all([
       this.prisma.forumThread.findMany({
-        where: {
-          ...where,
-        },
+        where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'asc' },
+        orderBy,
         select: {
           id: true,
           title: true,
           createdAt: true,
+          updatedAt: true,
           description: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+          _count: { select: { posts: true } },
           author: {
             select: {
               id: true,
@@ -64,8 +96,12 @@ export class ForumService {
       this.prisma.forumThread.count({ where }),
     ]);
 
+    const forumMapped = forum.map(({ _count, ...item }) => ({
+      ...item,
+      postCount: _count.posts,
+    }));
     return {
-      data: forum,
+      data: forumMapped,
       meta: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -81,6 +117,14 @@ export class ForumService {
       select: {
         id: true,
         title: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        isEdited: true,
         description: true,
         author: {
           select: {
@@ -107,11 +151,18 @@ export class ForumService {
     }
     const updatedThread = await this.prisma.forumThread.update({
       where: { id, createdBy: userId },
-      data: { title: updateForumDto.title },
+      data: {
+        title: updateForumDto.title,
+        isEdited: true,
+        description: updateForumDto.description,
+        category: { connect: { id: updateForumDto.categoryId } },
+      },
       select: {
         id: true,
         title: true,
         description: true,
+        category: { select: { id: true, name: true, slug: true } },
+        isEdited: true,
         createdAt: true,
       },
     });

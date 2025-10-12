@@ -9,6 +9,7 @@ import { slugify } from 'transliteration';
 import { nanoid } from 'nanoid';
 import { RateContentDto } from '../dto/rate-content.dto';
 import { QueryPublicContentDto } from '../dto/query-public-content.dto';
+import { ContentSort } from '../enums/content.enum';
 
 @Injectable()
 export class ContentService {
@@ -123,13 +124,12 @@ export class ContentService {
   async findPublishedContent(
     query: QueryPublicContentDto,
   ): Promise<ServerResponseDto> {
-    // page front-end : 1-based. convert to 0-based for skip calculation
     const pageZeroBased = (query.page ?? 1) - 1;
     const limit = query.limit ?? 10;
     const skip = pageZeroBased * limit;
     const take = limit;
 
-    // common where (without status)
+    // 🔍 Base filter
     const whereBase: Prisma.ContentWhereInput = {
       ...(query.type && { type: query.type }),
       ...(query.keyword && {
@@ -148,21 +148,46 @@ export class ContentService {
       }),
     };
 
-    // ensure we filter only published for this public endpoint
+    // ✅ Only show published content
     const whereWithStatus: Prisma.ContentWhereInput = {
       ...whereBase,
       status: ContentStatus.PUBLISHED,
     };
 
-    // determine ordering: prefer `sort` (new param), fallback to boolean `highest`
-    const orderBy: Prisma.ContentOrderByWithRelationInput =
-      query.sort === 'highest' ? { rating: 'desc' } : { createdAt: 'desc' };
+    // 🔽 Handle sorting
+    let orderBy: Prisma.ContentOrderByWithRelationInput;
 
+    switch (query.sort) {
+      case ContentSort.OLDEST:
+        orderBy = { createdAt: 'asc' };
+        break;
+      case ContentSort.HIGHEST_RATED:
+        orderBy = { rating: 'desc' };
+        break;
+      case ContentSort.LOWEST_RATED:
+        orderBy = { rating: 'asc' };
+        break;
+      case ContentSort.RECENTLY_UPDATED:
+        orderBy = { updatedAt: 'desc' };
+        break;
+      case ContentSort.A_TO_Z:
+        orderBy = { title: 'asc' };
+        break;
+      case ContentSort.Z_TO_A:
+        orderBy = { title: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' }; // NEWEST
+        break;
+    }
+
+    // 🚀 Fetch data
     const [data, total] = await Promise.all([
       this.prisma.content.findMany({
         where: whereWithStatus,
         skip,
         take,
+        orderBy,
         select: {
           id: true,
           slug: true,
@@ -170,33 +195,23 @@ export class ContentService {
           type: true,
           coverImage: true,
           excerpt: true,
-          status: true,
           rating: true,
+          createdAt: true,
+          updatedAt: true,
           author: {
             select: { id: true, name: true, email: true },
           },
           category: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-            },
+            select: { id: true, slug: true, name: true },
           },
-          createdAt: true,
-          updatedAt: true,
         },
-        orderBy,
       }),
-      // IMPORTANT: count must use same filters (including status)
-      this.prisma.content.count({
-        where: whereWithStatus,
-      }),
+      this.prisma.content.count({ where: whereWithStatus }),
     ]);
 
     return {
       data,
       meta: {
-        // convert back to 1-based page for client
         currentPage: pageZeroBased + 1,
         totalPages: Math.ceil(total / take),
         totalItems: total,

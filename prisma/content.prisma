@@ -10,7 +10,7 @@ model Content {
   status      ContentStatus @default(DRAFT)
   slug        String        @unique
   coverImage  String?       @map("cover_image")
-  isEdited    Boolean?
+  isEdited    Boolean?      @map("is_edited")
   categoryId  String?       @map("category_id")
   rating      Float?        @default(0)
   category    Category?     @relation(fields: [categoryId], references: [id])

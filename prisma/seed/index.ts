@@ -15,12 +15,12 @@ const prisma = new PrismaClient();
 
 // Konfigurasi jumlah data yang akan dibuat
 const NUM_ADMINS = 2;
-const NUM_PARENTS = 10;
-const NUM_CATEGORIES = 10;
-const NUM_CONTENTS = 30;
-const NUM_QUIZZES = 30;
-const NUM_FORUM_THREADS = 20;
-const NUM_PROGRESS_RECORDS = 90;
+const NUM_PARENTS = 50;
+const NUM_CATEGORIES = 20;
+const NUM_CONTENTS = 70;
+const NUM_QUIZZES = 100;
+const NUM_FORUM_THREADS = 50;
+const NUM_PROGRESS_RECORDS = 300;
 
 // Fungsi utama untuk seeding
 async function main() {
@@ -199,39 +199,73 @@ async function main() {
     const title = faker.lorem.sentence(5);
     const slug = `${faker.helpers.slugify(title).toLowerCase()}-${faker.string.alphanumeric(6)}`;
     const contentType = faker.helpers.arrayElement(Object.values(ContentType));
-
-    return prisma.content.create({
-      data: {
-        title,
-        slug,
-        type: contentType,
-        contentJson: {
-          type: 'doc',
-          content: [
-            {
-              type: 'heading',
-              attrs: { level: 1 },
-              content: [{ type: 'text', text: faker.lorem.sentence() }],
-            },
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
-            },
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: faker.lorem.paragraph() }],
-            },
-          ],
+    if (ContentType.FICTION_STORY === contentType) {
+      return prisma.content.create({
+        data: {
+          title,
+          slug,
+          type: contentType,
+          contentJson: {
+            type: 'doc',
+            content: [
+              {
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: faker.lorem.sentence() }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraph() }],
+              },
+            ],
+          },
+          excerpt: faker.lorem.sentences(2),
+          coverImage: `https://i.pinimg.com/564x/f7/c8/12/f7c812c9b0296cd9f119e33a06d9a256.jpg`,
+          status: faker.helpers.arrayElement(Object.values(ContentStatus)),
+          createdBy: faker.helpers.arrayElement(adminUsers).id,
+          categoryId: faker.helpers.arrayElement(categories).id,
+          // PERBAIKAN: fractionDigits harus integer (bilangan bulat)
+          rating: faker.number.float({ min: 3, max: 5, fractionDigits: 1 }),
         },
-        excerpt: faker.lorem.sentences(2),
-        coverImage: faker.image.urlLoremFlickr({ category: 'nature' }),
-        status: faker.helpers.arrayElement(Object.values(ContentStatus)),
-        createdBy: faker.helpers.arrayElement(allUsers).id,
-        categoryId: faker.helpers.arrayElement(categories).id,
-        // PERBAIKAN: fractionDigits harus integer (bilangan bulat)
-        rating: faker.number.float({ min: 3, max: 5, fractionDigits: 1 }),
-      },
-    });
+      });
+    } else {
+      return prisma.content.create({
+        data: {
+          title,
+          slug,
+          type: contentType,
+          contentJson: {
+            type: 'doc',
+            content: [
+              {
+                type: 'heading',
+                attrs: { level: 1 },
+                content: [{ type: 'text', text: faker.lorem.sentence() }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+              },
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: faker.lorem.paragraph() }],
+              },
+            ],
+          },
+          excerpt: faker.lorem.sentences(2),
+          coverImage: `https://i.pinimg.com/736x/15/61/58/1561587aef2154176057c566903f1abe.jpg`,
+          status: faker.helpers.arrayElement(Object.values(ContentStatus)),
+          createdBy: faker.helpers.arrayElement(adminUsers).id,
+          categoryId: faker.helpers.arrayElement(categories).id,
+          // PERBAIKAN: fractionDigits harus integer (bilangan bulat)
+          rating: faker.number.float({ min: 3, max: 5, fractionDigits: 1 }),
+        },
+      });
+    }
   });
   await Promise.all(contentPromises);
   console.log(`✅ ${NUM_CONTENTS} konten berhasil dibuat.`);
@@ -267,7 +301,7 @@ async function main() {
                 },
                 {
                   type: 'paragraph',
-                  content: [{ type: 'text', text: faker.lorem.paragraphs(2) }],
+                  content: [{ type: 'text', text: faker.lorem.paragraphs(30) }],
                 },
                 {
                   type: 'paragraph',
@@ -280,6 +314,7 @@ async function main() {
                 ...Array.from({ length: 3 }).map(() => ({
                   text: faker.lorem.word(),
                   isCorrect: false,
+                  imageAnswer: faker.image.urlPicsumPhotos(),
                 })),
                 {
                   text: faker.lorem.word(),
@@ -336,11 +371,14 @@ async function main() {
         title: faker.lorem.sentence(),
         description: faker.lorem.paragraph(),
         createdBy: faker.helpers.arrayElement(parentUsers).id,
+        categoryId: faker.helpers.arrayElement(categories).id,
+        isEdited: faker.datatype.boolean(),
         posts: {
           create: Array.from({ length: numPosts }).map(() => {
             postCount++;
             return {
               content: faker.lorem.paragraphs({ min: 1, max: 3 }),
+              isEdited: faker.datatype.boolean(),
               authorId: faker.helpers.arrayElement(parentUsers).id,
             };
           }),

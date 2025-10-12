@@ -31,11 +31,12 @@ export class PostService {
         },
         skip,
         take: limit,
-        orderBy: { createdAt: 'asc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         select: {
           id: true,
           content: true,
           createdAt: true,
+          isEdited: true,
           author: {
             select: {
               id: true,
@@ -96,7 +97,7 @@ export class PostService {
     if (existingPost.authorId !== userId) throw new ForbiddenException();
     const updatedPost = await this.prisma.forumPost.update({
       where: { id, threadId },
-      data: { content: updatePostDto.content },
+      data: { content: updatePostDto.content, isEdited: true },
       select: {
         id: true,
         content: true,
@@ -112,6 +113,26 @@ export class PostService {
     });
 
     return { message: 'Post berhasil diperbarui', data: updatedPost };
+  }
+
+  async findPostById(id: string, threadId: string) {
+    const post = await this.prisma.forumPost.findUnique({
+      where: { id, threadId },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profile: { select: { avatarUrl: true } },
+          },
+        },
+      },
+    });
+    if (!post) throw new NotFoundException('Post tidak ditemukan');
+    return { message: 'Berhasil mengambil post', data: post };
   }
 
   async findExistingPostById(id: string) {

@@ -1,11 +1,7 @@
 import { IsEnum, IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ContentType, ContentStatus } from '../enums/content.enum';
-
-export enum ContentSort {
-  HIGHEST = 'highest',
-  NEWEST = 'newest',
-}
+import { ContentSort } from '../enums/content.enum';
 
 export class QueryPublicContentDto {
   @IsOptional()
@@ -44,13 +40,16 @@ export class QueryPublicContentDto {
   )
   limit?: number;
 
-  // New: sort enum to accept 'highest' or 'newest' from frontend
   @IsOptional()
-  @IsEnum(ContentSort, { message: 'sort must be "highest" or "newest"' })
+  @IsEnum(ContentSort, {
+    message:
+      'sort must be one of: newest, oldest, highest_rated, lowest_rated, recently_updated, a_to_z, z_to_a',
+  })
   @Transform(({ value }) =>
     typeof value === 'string' ? value.toLowerCase() : value,
   )
   sort?: ContentSort;
+
   @IsOptional()
   @IsString()
   category?: string;

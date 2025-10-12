@@ -8,4 +8,7 @@ export class CreateForumDto {
   @IsString()
   @IsOptional()
   description: string;
+
+  @IsOptional()
+  categoryId?: string;
 }
