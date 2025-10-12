@@ -138,6 +138,14 @@ export class ContentService {
           { excerpt: { contains: query.keyword, mode: 'insensitive' } },
         ],
       }),
+      ...(query.category && {
+        category: {
+          OR: [
+            { name: { contains: query.category, mode: 'insensitive' } },
+            { slug: { contains: query.category, mode: 'insensitive' } },
+          ],
+        },
+      }),
     };
 
     // ensure we filter only published for this public endpoint

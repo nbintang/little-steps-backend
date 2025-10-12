@@ -51,4 +51,7 @@ export class QueryPublicContentDto {
     typeof value === 'string' ? value.toLowerCase() : value,
   )
   sort?: ContentSort;
+  @IsOptional()
+  @IsString()
+  category?: string;
 }

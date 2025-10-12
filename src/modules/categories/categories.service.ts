@@ -51,6 +51,41 @@ export class CategoriesService {
     };
   }
 
+  async findAllPublic(query: QueryCategoryDto) {
+    const page = (query.page || 1) - 1;
+    const limit = query.limit || 10;
+    const skip = page * limit;
+    const take = limit;
+    const where: Prisma.CategoryWhereInput = {
+      ...(query.keyword && {
+        name: { contains: query.keyword, mode: 'insensitive' },
+      }),
+    };
+    const [data, total] = await Promise.all([
+      this.prisma.category.findMany({
+        where,
+        skip,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+      }),
+      this.prisma.category.count({ where }),
+    ]);
+    return {
+      data,
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: limit,
+      },
+    };
+  }
+
   async findOne(id: string) {
     const category = await this.prisma.category.findUnique({
       where: { id },
