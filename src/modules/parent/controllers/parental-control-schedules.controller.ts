@@ -41,7 +41,10 @@ export class ParentalControlSchedulesController {
 
   @Get()
   async listSchedules(@Req() req, @Param('childId') childId: string) {
-    return await this.parentalService.listSchedules(req.user.sub, childId);
+    return await this.parentalService.listChildrenSchedules(
+      req.user.sub,
+      childId,
+    );
   }
 
   @Patch(':id')

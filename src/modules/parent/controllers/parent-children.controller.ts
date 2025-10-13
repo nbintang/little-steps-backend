@@ -21,12 +21,15 @@ import { Request } from 'express';
 import { QueryChildDto } from '../../children/dto/query-child.dto';
 import { UpdateChildDto } from '../../children/dto/update-child.dto';
 import { ParentChildrenService } from '../services/parent-children.service';
+import { ParentalControlService } from '../services/parental-control-crud-schedule.service';
 
 @Roles(UserRole.PARENT)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 @Controller('protected/parent/children')
 export class ParentChildrenController {
-  constructor(private readonly parentService: ParentChildrenService) {}
+  constructor(private readonly parentService: ParentChildrenService,
+    private readonly parentalControlService: ParentalControlService
+  ) {}
 
   @Post()
   async createChildProfile(
@@ -48,6 +51,11 @@ export class ParentChildrenController {
     return await this.parentService.findAllChildProfile(userId, query);
   }
 
+  @Get('schedules' )
+  async findSchedules(@Req() request: Request) {
+    const userId = request.user.sub;
+    return await this.parentalControlService.listChildrenSchedules(userId);
+  }
   @Get(':childId')
   async findChildProfileById(
     @Req() request: Request,

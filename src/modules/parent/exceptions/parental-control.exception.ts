@@ -6,8 +6,11 @@ export class ParentalControlException extends ForbiddenException {
     super({
       statusCode: 403,
       success: false,
-      message: 'Access restricted by parental control schedule',
-      allowedWindows, // <-- array jadwal lengkap
+      message:
+        allowedWindows.length > 0
+          ? 'Parental control is active'
+          : 'Access restricted by parental control schedule, please try again as scheduled time',
+      allowedWindows, // <-- array jadwal lengkap;
       timestamp: new Date().toISOString(),
     });
   }

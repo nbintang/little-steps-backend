@@ -65,7 +65,7 @@ export class ParentalControlService {
     return { data: schedule };
   }
 
-  async listSchedules(parentId: string, childId: string) {
+  async listChildrenSchedules(parentId: string, childId: string) {
     const child = await this.prisma.childProfile.findUnique({
       where: { id: childId },
     });
@@ -73,6 +73,14 @@ export class ParentalControlService {
 
     const schedules = await this.prisma.parentalControlSchedule.findMany({
       where: { childId },
+      select: { id: true, day: true, startTime: true, endTime: true },
+      orderBy: { day: 'asc' },
+    });
+    return { data: schedules };
+  }
+  async listSchedules(parentId: string) {
+    const schedules = await this.prisma.parentalControlSchedule.findMany({
+      where: { child: { parentId } },
       select: { id: true, day: true, startTime: true, endTime: true },
       orderBy: { day: 'asc' },
     });
