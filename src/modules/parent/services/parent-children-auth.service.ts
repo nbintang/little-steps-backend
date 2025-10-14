@@ -53,7 +53,6 @@ export class ParentChildrenAuthService {
       expiresIn: '12h',
     });
   }
-
   async getChildFromToken(token: string) {
     const payload = await this.jwtService.verifyAsync<ChildJwtPayload>(token, {
       secret: this.configService.jwt.childSecret,

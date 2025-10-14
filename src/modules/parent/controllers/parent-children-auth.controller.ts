@@ -17,11 +17,13 @@ import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
 import { RoleGuard } from '../../auth/guards/role.guard';
 import { VerifyEmailGuard } from '../../auth/guards/verify-email.guard';
 import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard';
+import { ParentalControlScheduleService } from '../services/parental-control-schedule.service';
 
 @Controller('protected/parent/children/:childId/auth')
 export class ParentChildrenAuthController {
   constructor(
     private readonly parentChildrenAuthService: ParentChildrenAuthService,
+    private readonly parentalControlScheduleService: ParentalControlScheduleService,
   ) {}
   private isDevelopment = process.env.NODE_ENV === 'development';
   private getCookieOptions(): CookieOptions {
@@ -52,7 +54,16 @@ export class ParentChildrenAuthController {
       childId,
     );
     response.cookie('childToken', token, this.getCookieOptions());
-    return { message: 'Success', data: { token } };
+
+    return {
+      message: 'Success',
+      data: {
+        accessInfo: {
+          isAllowed: true,
+          isActive: true,
+        },
+      },
+    };
   }
 
   @Delete('exit')

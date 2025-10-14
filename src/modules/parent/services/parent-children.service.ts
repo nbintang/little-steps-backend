@@ -4,9 +4,13 @@ import { PrismaService } from '../../../common/prisma/prisma.service';
 import { UpdateChildDto } from '../../children/dto/update-child.dto';
 import { QueryChildDto } from '../../children/dto/query-child.dto';
 import { Prisma } from '@prisma/client';
+import { ParentalControlScheduleService } from './parental-control-schedule.service';
 @Injectable()
 export class ParentChildrenService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly parentalControlScheduleService: ParentalControlScheduleService,
+  ) {}
   async createChildProfile(id: string, createChildDto: CreateChildDto) {
     const child = await this.prisma.childProfile.create({
       data: {
@@ -70,8 +74,16 @@ export class ParentChildrenService {
       }),
       this.prisma.childProfile.count({ where }),
     ]);
+    const dataWithStatus = await Promise.all(
+      data.map(async (child) => {
+        const isActive =
+          await this.parentalControlScheduleService.isChildAllowed(child.id);
+        return { ...child, isActive };
+      }),
+    );
+
     return {
-      data,
+      data: dataWithStatus,
       meta: {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
@@ -101,8 +113,11 @@ export class ParentChildrenService {
         },
       },
     });
+    const isActive = await this.parentalControlScheduleService.isChildAllowed(
+      child.id,
+    );
     return {
-      data: child,
+      data: { ...child, isActive },
     };
   }
   async findExistedChildProfileById(parentId: string, id: string) {

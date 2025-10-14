@@ -26,14 +26,18 @@ export class ChildAccessGuard implements CanActivate {
     const request = ctx.switchToHttp().getRequest<Request>();
     const token = request.cookies['childToken'];
     if (!token) throw new ForbiddenException('Please access child first');
+
     const child = await this.parentChildrenAuthService.getChildFromToken(token);
     if (!child?.childId) throw new ForbiddenException('Child context missing');
+
     const allowedWindows =
       await this.parentalControlScheduleService.getCurrentAccessWindow(
         child.childId,
       );
+
     const isAllowedNow = allowedWindows.some((w) => w.activeNow);
     if (!isAllowedNow) throw new ParentalControlException(allowedWindows);
+
     request.child = child;
     return true;
   }

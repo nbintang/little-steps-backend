@@ -7,6 +7,7 @@ import { PrismaService } from '../../../common/prisma/prisma.service';
 import { DayOfWeek } from '../enums/day-of-week.enum';
 import { CreateScheduleDto } from '../dto/create-schedule.dto';
 import { UpdateScheduleDto } from '../dto/update-schedule.dto';
+import { formatInTimeZone } from 'date-fns-tz';
 
 @Injectable()
 export class ParentalControlService {
@@ -59,6 +60,7 @@ export class ParentalControlService {
         day: dto.day,
         startTime,
         endTime,
+        timezone: dto.timezone,
         childId,
       },
     });
@@ -76,7 +78,16 @@ export class ParentalControlService {
       select: { id: true, day: true, startTime: true, endTime: true },
       orderBy: { day: 'asc' },
     });
-    return { data: schedules };
+
+    const timezone = 'Asia/Jakarta';
+    const formattedSchedules = schedules.map((s) => ({
+      id: s.id,
+      day: s.day,
+      startTime: formatInTimeZone(s.startTime, timezone, 'HH:mm'),
+      endTime: formatInTimeZone(s.endTime, timezone, 'HH:mm'),
+    }));
+
+    return { data: formattedSchedules };
   }
   async listSchedules(parentId: string) {
     const schedules = await this.prisma.parentalControlSchedule.findMany({
@@ -84,7 +95,14 @@ export class ParentalControlService {
       select: { id: true, day: true, startTime: true, endTime: true },
       orderBy: { day: 'asc' },
     });
-    return { data: schedules };
+    const timezone = 'Asia/Jakarta';
+    const formattedSchedules = schedules.map((s) => ({
+      id: s.id,
+      day: s.day,
+      startTime: formatInTimeZone(s.startTime, timezone, 'HH:mm'),
+      endTime: formatInTimeZone(s.endTime, timezone, 'HH:mm'),
+    }));
+    return { data: formattedSchedules };
   }
 
   async updateSchedule(
