@@ -27,8 +27,9 @@ import { ParentalControlService } from '../services/parental-control-crud-schedu
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
 @Controller('protected/parent/children')
 export class ParentChildrenController {
-  constructor(private readonly parentService: ParentChildrenService,
-    private readonly parentalControlService: ParentalControlService
+  constructor(
+    private readonly parentService: ParentChildrenService,
+    private readonly parentalControlService: ParentalControlService,
   ) {}
 
   @Post()
@@ -51,10 +52,10 @@ export class ParentChildrenController {
     return await this.parentService.findAllChildProfile(userId, query);
   }
 
-  @Get('schedules' )
+  @Get('schedules')
   async findSchedules(@Req() request: Request) {
     const userId = request.user.sub;
-    return await this.parentalControlService.listChildrenSchedules(userId);
+    return await this.parentalControlService.listSchedules(userId);
   }
   @Get(':childId')
   async findChildProfileById(

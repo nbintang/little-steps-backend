@@ -15,12 +15,12 @@ const prisma = new PrismaClient();
 
 // Konfigurasi jumlah data yang akan dibuat
 const NUM_ADMINS = 2;
-const NUM_PARENTS = 50;
-const NUM_CATEGORIES = 20;
-const NUM_CONTENTS = 70;
-const NUM_QUIZZES = 100;
-const NUM_FORUM_THREADS = 50;
-const NUM_PROGRESS_RECORDS = 300;
+const NUM_PARENTS = 20;
+const NUM_CATEGORIES = 10;
+const NUM_CONTENTS = 30;
+const NUM_QUIZZES = 20;
+const NUM_FORUM_THREADS = 30;
+const NUM_PROGRESS_RECORDS = 50;
 
 // Fungsi utama untuk seeding
 async function main() {

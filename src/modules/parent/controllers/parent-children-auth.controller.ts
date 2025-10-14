@@ -23,15 +23,15 @@ export class ParentChildrenAuthController {
   constructor(
     private readonly parentChildrenAuthService: ParentChildrenAuthService,
   ) {}
-  private setCookieOptions(isProduction: boolean): CookieOptions {
+  private isDevelopment = process.env.NODE_ENV === 'development';
+  private getCookieOptions(): CookieOptions {
     return {
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
+      path: '/',
+      sameSite: this.isDevelopment ? 'lax' : 'none',
+      secure: !this.isDevelopment,
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours
     };
   }
-
   @Roles(UserRole.PARENT)
   @UseGuards(
     AccessTokenGuard,
@@ -51,15 +51,13 @@ export class ParentChildrenAuthController {
       parentId,
       childId,
     );
-    const isProduction = process.env.NODE_ENV === 'production';
-    response.cookie('childToken', token, this.setCookieOptions(isProduction));
+    response.cookie('childToken', token, this.getCookieOptions());
     return { message: 'Success', data: { token } };
   }
 
   @Delete('exit')
   async exitChild(@Res({ passthrough: true }) response: Response) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    response.clearCookie('childToken', this.setCookieOptions(isProduction));
+    response.clearCookie('childToken', this.getCookieOptions());
     return { message: 'Exit success' };
   }
 }
