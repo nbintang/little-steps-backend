@@ -32,12 +32,12 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<void> {
     const {
-      _json: { sub, given_name, family_name, picture, email, email_verified },
+      _json: { sub, picture, email, email_verified },
     } = profile;
 
     const user: GoogleOauthUserResponse = {
       googleId: sub,
-      name: `${given_name} ${family_name}`.trim(),
+      name: `${profile.displayName}`.trim(),
       avatarUrl: picture,
       email,
       verified: email_verified,
