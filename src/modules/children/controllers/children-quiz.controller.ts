@@ -11,14 +11,22 @@ import {
 } from '@nestjs/common';
 import { ChildAccessGuard } from '../../parent/guards/child-access.guard';
 import { Request } from 'express';
-import { QuizPlayService } from '../../quiz/services/quiz-play.service';
 import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
+import { QuizService } from 'src/modules/quiz/services/quiz.service';
+import { QuizPlayService } from 'src/modules/quiz/services/quiz-play.service';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')
 export class ChildrenQuizController {
-  constructor(private readonly quizPlayService: QuizPlayService) {}
+  constructor(
+    private readonly quizPlayService: QuizPlayService,
+    private readonly quizService: QuizService,
+  ) {}
 
+  @Get()
+  async findAllQuizzes(@Query() query: QueryQuizPlayDto) {
+    return this.quizService.findAllQuizzes(query);
+  }
   @Post(':quizId/start')
   async startQuiz(@Param('quizId') quizId: string, @Req() request: Request) {
     const childId = request.child.childId;

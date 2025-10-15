@@ -48,6 +48,7 @@ export class ContentService {
             id: true,
             slug: true,
             name: true,
+            type: true,
           },
         },
         author: {
@@ -101,6 +102,7 @@ export class ContentService {
               id: true,
               slug: true,
               name: true,
+              type: true,
             },
           },
           createdAt: true,
@@ -202,7 +204,7 @@ export class ContentService {
             select: { id: true, name: true, email: true },
           },
           category: {
-            select: { id: true, slug: true, name: true },
+            select: { id: true, slug: true, name: true, type: true },
           },
         },
       }),
@@ -255,6 +257,7 @@ export class ContentService {
             id: true,
             slug: true,
             name: true,
+            type: true,
           },
         },
         createdAt: true,
@@ -305,7 +308,7 @@ export class ContentService {
       where: { slug },
       data,
       include: {
-        category: { select: { id: true, slug: true, name: true } },
+        category: { select: { id: true, slug: true, name: true, type: true } },
         author: { select: { id: true, name: true, email: true } },
       },
     });

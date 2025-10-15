@@ -27,6 +27,7 @@ export class CategoriesService {
     const skip = page * limit;
     const take = limit;
     const where: Prisma.CategoryWhereInput = {
+      ...(query.type && { type: query.type }),
       ...(query.keyword && {
         name: { contains: query.keyword, mode: 'insensitive' },
       }),
@@ -35,6 +36,12 @@ export class CategoriesService {
       this.prisma.category.findMany({
         where,
         skip,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
         orderBy: { createdAt: 'desc' },
         take,
       }),
@@ -57,6 +64,7 @@ export class CategoriesService {
     const skip = page * limit;
     const take = limit;
     const where: Prisma.CategoryWhereInput = {
+      ...(query.type && { type: query.type }),
       ...(query.keyword && {
         name: { contains: query.keyword, mode: 'insensitive' },
       }),
@@ -69,6 +77,7 @@ export class CategoriesService {
           id: true,
           name: true,
           slug: true,
+          type: true,
         },
         orderBy: { createdAt: 'desc' },
         take,

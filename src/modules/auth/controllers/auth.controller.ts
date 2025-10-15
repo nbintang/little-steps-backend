@@ -4,11 +4,12 @@ import {
   Body,
   Delete,
   Req,
-  Res, Inject,
+  Res,
+  Inject,
   LoggerService,
   HttpCode,
   HttpStatus,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 
@@ -29,13 +30,13 @@ export class AuthController {
     private readonly logger: LoggerService,
   ) {}
   private isDevelopment = process.env.NODE_ENV === 'development';
-  private getCookieOptions(): CookieOptions { 
-   return {
-    path: "/",
-    sameSite: this.isDevelopment ? "lax" : "none",
-    secure: !this.isDevelopment,
-    httpOnly: true,
-  };
+  private getCookieOptions(): CookieOptions {
+    return {
+      path: '/',
+      sameSite: this.isDevelopment ? 'lax' : 'none',
+      secure: !this.isDevelopment,
+      httpOnly: true,
+    };
   }
 
   @Post('register')

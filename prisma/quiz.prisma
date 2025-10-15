@@ -21,7 +21,7 @@ model Question {
   quizId       String   @map("quiz_id")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
-  questionJson Json
+  questionJson Json   @map("question_json")
   answers      Answer[]
   quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
