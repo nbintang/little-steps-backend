@@ -18,7 +18,7 @@ async function bootstrap() {
 
   // --- Middleware ---
   app.enableCors({
-    origin: [config.frontendUrl],
+    origin: [config.frontendUrl, 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
