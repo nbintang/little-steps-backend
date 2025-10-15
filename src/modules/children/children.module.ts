@@ -8,12 +8,14 @@ import { ChildrenQuizController } from './controllers/children-quiz.controller';
 import { QuizModule } from '../quiz/quiz.module';
 import { ChildrenControllerController } from './controllers/children.controller';
 import { ContentModule } from '../content/content.module';
+import { ProgressModule } from '../progress/progress.module';
 @Module({
   imports: [
     PrismaModule,
     ConfigModule,
     ParentModule,
     QuizModule,
+    ProgressModule,
     ContentModule,
   ],
   controllers: [

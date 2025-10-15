@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
 import { QuizService } from 'src/modules/quiz/services/quiz.service';
 import { QuizPlayService } from 'src/modules/quiz/services/quiz-play.service';
+import { ProgressService } from 'src/modules/progress/progress.service';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')
@@ -21,11 +22,16 @@ export class ChildrenQuizController {
   constructor(
     private readonly quizPlayService: QuizPlayService,
     private readonly quizService: QuizService,
+    private readonly progressService: ProgressService,
   ) {}
 
   @Get()
-  async findAllQuizzes(@Query() query: QueryQuizPlayDto) {
-    return this.quizService.findAllQuizzes(query);
+  async findAllQuizzes(
+    @Query() query: QueryQuizPlayDto,
+    @Req() request: Request,
+  ) {
+    const childId = request.child.childId;
+    return this.quizPlayService.findAllQuizzes(query, childId);
   }
   @Post(':quizId/start')
   async startQuiz(@Param('quizId') quizId: string, @Req() request: Request) {
@@ -40,12 +46,6 @@ export class ChildrenQuizController {
   ) {
     return this.quizPlayService.getQuizForPlay(quizId, query);
   }
-  @Get(':quizId/progress')
-  async getProgress(@Param('quizId') quizId: string, @Req() request: Request) {
-    const childId = request.child.childId;
-    return this.quizPlayService.getProgress(childId, quizId);
-  }
-
   @Post(':quizId/submit')
   async submitQuiz(
     @Param('quizId') quizId: string,

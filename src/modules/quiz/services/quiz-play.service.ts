@@ -7,12 +7,154 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { SubmitQuizDto } from '../dto/quiz/submit-quiz.dto';
-import { QueryQuizPlayDto } from '../dto/quiz/query-quiz-play.dto';
-
+import { QueryQuizPlayDto, QuerySort } from '../dto/quiz/query-quiz-play.dto';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class QuizPlayService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findAllQuizzes(query: QueryQuizPlayDto, childId?: string) {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const searchKeyword = query.keyword;
+    const skipCount = (page - 1) * limit;
+
+    // 🟩 Kondisi filter
+    const where: Prisma.QuizWhereInput = {
+      ...(searchKeyword && {
+        OR: [
+          { title: { contains: searchKeyword, mode: 'insensitive' } },
+          { description: { contains: searchKeyword, mode: 'insensitive' } },
+        ],
+      }),
+      ...(query.category && {
+        OR: [
+          {
+            category: {
+              name: { contains: query.category, mode: 'insensitive' },
+            },
+          },
+          {
+            category: {
+              slug: { contains: query.category, mode: 'insensitive' },
+            },
+          },
+        ],
+      }),
+    };
+
+    // 🟩 Tentukan urutan (orderBy) berdasarkan QuerySort
+    let orderBy: Prisma.QuizOrderByWithRelationInput;
+    switch (query.sort) {
+      case QuerySort.NEWEST:
+        orderBy = { createdAt: 'desc' };
+        break;
+      case QuerySort.OLDEST:
+        orderBy = { createdAt: 'asc' };
+        break;
+      case QuerySort.HIGHEST_RATED:
+        orderBy = { rating: 'desc' };
+        break;
+      case QuerySort.LOWEST_RATED:
+        orderBy = { rating: 'asc' };
+        break;
+      case QuerySort.RECENTLY_UPDATED:
+        orderBy = { updatedAt: 'desc' };
+        break;
+      case QuerySort.A_TO_Z:
+        orderBy = { title: 'asc' };
+        break;
+      case QuerySort.Z_TO_A:
+        orderBy = { title: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' };
+    }
+
+    // 🟩 Include relasi yang dibutuhkan
+    const include: Prisma.QuizInclude = {
+      category: { select: { id: true, slug: true, name: true } },
+      questions: { select: { id: true } },
+      ...(childId && {
+        progress: {
+          where: { childId },
+          select: {
+            id: true,
+            score: true,
+            completionPercent: true,
+            startedAt: true,
+            submittedAt: true,
+          },
+          take: 1,
+        },
+      }),
+    };
+
+    // 🟩 Query data dan total count paralel
+    const [quizzes, totalCount] = await Promise.all([
+      this.prisma.quiz.findMany({
+        where,
+        skip: skipCount,
+        take: limit,
+        orderBy,
+        select: {
+          id: true,
+          title: true,
+          rating: true,
+          description: true,
+          timeLimit: true,
+          createdAt: true,
+          category: include.category,
+          questions: include.questions,
+          ...(childId ? { progress: include.progress } : {}),
+        },
+      }),
+      this.prisma.quiz.count({ where }),
+    ]);
+
+    // 🟩 Tambahkan metadata progress dan status
+    const quizzesWithMeta = quizzes.map((quiz) => {
+      const progressForChild = (quiz as any).progress?.[0] ?? null;
+      let status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' = 'NOT_STARTED';
+
+      if (!progressForChild) status = 'NOT_STARTED';
+      else if (progressForChild.submittedAt) status = 'COMPLETED';
+      else status = 'IN_PROGRESS';
+
+      return {
+        id: quiz.id,
+        title: quiz.title,
+        rating: quiz.rating,
+        description: quiz.description,
+        timeLimit: quiz.timeLimit,
+        createdAt: quiz.createdAt,
+        category: quiz.category,
+        questionCount: quiz.questions.length,
+        progress: progressForChild
+          ? {
+              id: progressForChild.id,
+              score: progressForChild.score,
+              completionPercent: progressForChild.completionPercent,
+              startedAt: progressForChild.startedAt,
+              submittedAt: progressForChild.submittedAt,
+            }
+          : null,
+        status,
+      };
+    });
+
+    // 🟩 Response akhir
+    return {
+      message: 'Berhasil mendapatkan data quiz',
+      data: quizzesWithMeta,
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+      },
+    };
+  }
   async startQuiz(childId: string, quizId: string) {
     const quizExists = await this.prisma.quiz.count({ where: { id: quizId } });
     if (!quizExists) throw new NotFoundException('Quiz not found');
@@ -30,17 +172,6 @@ export class QuizPlayService {
       },
     });
     return { message: 'Quiz started now!', data: progress };
-  }
-
-  async getProgress(childId: string, quizId: string) {
-    const progress = await this.prisma.progress.findUnique({
-      where: { quizId_childId: { quizId, childId } },
-    });
-    if (!progress) throw new NotFoundException('Progress not found');
-    return {
-      message: 'Progress found',
-      data: progress,
-    };
   }
 
   async getQuizForPlay(quizId: string, query: QueryQuizPlayDto) {
@@ -80,6 +211,7 @@ export class QuizPlayService {
     const safeQuestions = questions.map((q) => ({
       id: q.id,
       questionJson: q.questionJson,
+      timeLimit: quizMeta.timeLimit,
       answers: q.answers.map((a) => ({
         id: a.id,
         text: a.text,
