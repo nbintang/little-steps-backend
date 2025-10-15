@@ -4,7 +4,6 @@ import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
 import { RoleGuard } from '../../auth/guards/role.guard';
 import { VerifyEmailGuard } from '../../auth/guards/verify-email.guard';
 import { CompletedProfileGuard } from '../../auth/guards/completed-profile.guard';
-// src/parental-control/parental-control.controller.ts
 import {
   Body,
   Controller,

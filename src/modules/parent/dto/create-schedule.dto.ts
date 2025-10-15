@@ -1,4 +1,3 @@
-// src/parental-control/dto/create-schedule.dto.ts
 import {
   IsEnum,
   IsNotEmpty,

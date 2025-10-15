@@ -1,7 +1,6 @@
-// src/modules/quiz/quiz.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { QueryProgressDto, ProgressChartType } from './dto/progress-quiz.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

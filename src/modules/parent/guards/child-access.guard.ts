@@ -1,4 +1,3 @@
-// src/auth/guards/child-access.guard.ts
 import {
   CanActivate,
   ExecutionContext,

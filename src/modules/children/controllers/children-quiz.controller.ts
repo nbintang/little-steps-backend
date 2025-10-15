@@ -1,4 +1,3 @@
-// src/controllers/children-quiz.controller.ts
 import {
   Body,
   Controller,
@@ -12,9 +11,9 @@ import {
 import { ChildAccessGuard } from '../../parent/guards/child-access.guard';
 import { Request } from 'express';
 import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
-import { QuizService } from 'src/modules/quiz/services/quiz.service';
-import { QuizPlayService } from 'src/modules/quiz/services/quiz-play.service';
-import { ProgressService } from 'src/modules/progress/progress.service';
+import { QuizService } from '../../../modules/quiz/services/quiz.service';
+import { QuizPlayService } from '../../../modules/quiz/services/quiz-play.service';
+import { ProgressService } from '../../../modules/progress/progress.service';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')

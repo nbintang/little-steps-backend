@@ -1,4 +1,3 @@
-// src/modules/quiz/quiz.service.ts
 import {
   Injectable,
   NotFoundException,

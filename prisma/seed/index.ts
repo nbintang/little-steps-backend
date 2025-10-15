@@ -15,11 +15,11 @@ const prisma = new PrismaClient();
 
 // Konfigurasi
 const NUM_ADMINS = 2;
-const NUM_PARENTS = 20
-const NUM_CONTENTS = 50;
-const NUM_QUIZZES = 30;
-const NUM_FORUM_THREADS = 40;
-const NUM_PROGRESS_RECORDS = 100;
+const NUM_PARENTS = 10;
+const NUM_CONTENTS = 20;
+const NUM_QUIZZES = 2;
+const NUM_FORUM_THREADS = 10;
+const NUM_PROGRESS_RECORDS = 10;
 
 // Helper: Generate TipTap JSON Content
 function generateTipTapContent(type: 'article' | 'story' = 'article') {

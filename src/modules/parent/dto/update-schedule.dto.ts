@@ -1,4 +1,3 @@
-// src/parental-control/dto/update-schedule.dto.ts
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateScheduleDto } from './create-schedule.dto';
 
