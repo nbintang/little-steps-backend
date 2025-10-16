@@ -20,7 +20,7 @@ import { UserRole } from '../user/enums/user-role.enum';
 @Controller('protected/statistics')
 export class StatisticController {
   constructor(private readonly progressService: StatisticService) {}
-  @Get('quiz-progress')
+  @Get('quizzes')
   @HttpCode(HttpStatus.OK)
   async getAllQuizProgress(@Query() query: QueryStatisticQuizDto) {
     return this.progressService.getAllQuizProgress(query);

@@ -95,10 +95,6 @@ export class StatisticService {
       orderBy: { startedAt: 'asc' },
     });
 
-    if (progresses.length === 0) {
-      throw new NotFoundException('No progress data found');
-    }
-
     const chartData = progresses.map((p) => ({
       date: new Date(p.startedAt).toISOString().split('T')[0],
       score: p.score ?? 0,
