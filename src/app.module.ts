@@ -16,8 +16,7 @@ import { QuizModule } from './modules/quiz/quiz.module';
 import { ForumModule } from './modules/forum/forum.module';
 import { ChildrenModule } from './modules/children/children.module';
 import { CategoriesModule } from './modules/categories/categories.module';
-import { ProgressModule } from './modules/progress/progress.module';
-
+import { ProgressModule } from './modules/statistics/statistic.module';
 @Module({
   imports: [
     PrismaModule,

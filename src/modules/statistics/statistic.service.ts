@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { QueryProgressDto, ProgressChartType } from './dto/progress-quiz.dto';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import {
+  ProgressChartType,
+  QueryStatisticQuizDto,
+} from './dto/statistic-quiz.dto';
 
 @Injectable()
-export class ProgressService {
+export class StatisticService {
   constructor(private readonly prisma: PrismaService) {}
   async getProgress(childId: string, quizId: string) {
     const progress = await this.prisma.progress.findUnique({
@@ -42,17 +45,16 @@ export class ProgressService {
       },
     };
   }
-
-  async getAllProgress(query?: QueryProgressDto) {
+  async getAllQuizProgress(query?: QueryStatisticQuizDto) {
     const {
       type = ProgressChartType.OVERALL,
       start,
       end,
       childId,
       quizId,
+      category,
     } = query || {};
 
-    // filter waktu opsional
     const dateFilter =
       type === ProgressChartType.WEEKLY
         ? { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
@@ -62,10 +64,16 @@ export class ProgressService {
             ? { gte: new Date(start), lte: new Date(end) }
             : undefined;
 
-    const where: Prisma.ProgressWhereInput = {};
-    if (childId) where.childId = childId;
-    if (quizId) where.quizId = quizId;
-    if (dateFilter) where.startedAt = dateFilter;
+    const where: Prisma.ProgressWhereInput = {
+      ...(childId && { childId }),
+      ...(quizId && { quizId }),
+      ...(dateFilter && { startedAt: dateFilter }),
+      ...(category && {
+        quiz: {
+          categoryId: category,
+        },
+      }),
+    };
 
     const progresses = await this.prisma.progress.findMany({
       where,
@@ -92,16 +100,36 @@ export class ProgressService {
     }
 
     const chartData = progresses.map((p) => ({
-      date: p.startedAt,
-      score: p.score || 0,
-      completion: p.completionPercent || 0,
+      date: new Date(p.startedAt).toISOString().split('T')[0],
+      score: p.score ?? 0,
+      completionPercent: p.completionPercent ?? 0,
       quizTitle: p.quiz.title,
+      category: p.quiz.category?.name ?? 'Unknown',
+      childName: p.child.name,
     }));
+
+    // Tambahkan meta
+    const totalScore = progresses.reduce((sum, p) => sum + (p.score ?? 0), 0);
+    const avgScore = progresses.length > 0 ? totalScore / progresses.length : 0;
+    const totalQuizzes = progresses.length;
+    const totalCompletion = progresses.reduce(
+      (sum, p) => sum + (p.completionPercent ?? 0),
+      0,
+    );
+    const avgCompletion =
+      progresses.length > 0 ? totalCompletion / progresses.length : 0;
+
+    const meta = {
+      totalQuizzes,
+      totalScore,
+      avgScore: parseFloat(avgScore.toFixed(2)),
+      avgCompletion: parseFloat(avgCompletion.toFixed(2)),
+    };
 
     return {
       message: 'Progress data found',
-      data: progresses,
-      chart: chartData,
+      data: chartData,
+      meta,
     };
   }
 }

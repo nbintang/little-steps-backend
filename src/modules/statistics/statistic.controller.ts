@@ -6,8 +6,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProgressService } from './progress.service';
-import { QueryProgressDto } from './dto/progress-quiz.dto';
+import { StatisticService } from './statistic.service';
+import { QueryStatisticQuizDto } from './dto/statistic-quiz.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CompletedProfileGuard } from '../auth/guards/completed-profile.guard';
@@ -17,12 +17,12 @@ import { UserRole } from '../user/enums/user-role.enum';
 
 @Roles(UserRole.PARENT, UserRole.ADMINISTRATOR)
 @UseGuards(AccessTokenGuard, RoleGuard, VerifyEmailGuard, CompletedProfileGuard)
-@Controller('protected/progress')
-export class ProgressController {
-  constructor(private readonly progressService: ProgressService) {}
-  @Get()
+@Controller('protected/statistics')
+export class StatisticController {
+  constructor(private readonly progressService: StatisticService) {}
+  @Get('quiz-progress')
   @HttpCode(HttpStatus.OK)
-  async getAllProgress(@Query() query: QueryProgressDto) {
-    return this.progressService.getAllProgress(query);
+  async getAllQuizProgress(@Query() query: QueryStatisticQuizDto) {
+    return this.progressService.getAllQuizProgress(query);
   }
 }

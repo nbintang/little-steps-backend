@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export enum ProgressChartType {
@@ -6,8 +7,9 @@ export enum ProgressChartType {
   MONTHLY = 'monthly',
 }
 
-export class QueryProgressDto {
+export class QueryStatisticQuizDto {
   @IsOptional()
+  @Transform(({ value }: { value: ProgressChartType }) => value?.toLowerCase())
   @IsEnum(ProgressChartType, {
     message: 'type must be one of: overall, weekly, monthly',
   })
@@ -28,4 +30,8 @@ export class QueryProgressDto {
   @IsOptional()
   @IsUUID()
   quizId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  category?: string;
 }

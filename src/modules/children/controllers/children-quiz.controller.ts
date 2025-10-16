@@ -13,7 +13,7 @@ import { Request } from 'express';
 import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
 import { QuizService } from '../../../modules/quiz/services/quiz.service';
 import { QuizPlayService } from '../../../modules/quiz/services/quiz-play.service';
-import { ProgressService } from '../../../modules/progress/progress.service';
+import { StatisticService } from 'src/modules/statistics/statistic.service';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')
@@ -21,7 +21,7 @@ export class ChildrenQuizController {
   constructor(
     private readonly quizPlayService: QuizPlayService,
     private readonly quizService: QuizService,
-    private readonly progressService: ProgressService,
+    private readonly progressService: StatisticService,
   ) {}
 
   @Get()
