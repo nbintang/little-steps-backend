@@ -13,22 +13,16 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
-
   const config = app.get(ConfigService);
-
-  // --- Middleware ---
   app.enableCors({
     origin: [config.frontendUrl, 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
-
   app.useBodyParser('json', { limit: '10mb' });
   app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
   app.use(cookieParser());
   app.use(compression());
-
-  // --- Global Validation Pipe ---
   app.useGlobalPipes(
     new CustomValidationPipe({
       transform: true,
@@ -39,10 +33,8 @@ async function bootstrap() {
     }),
   );
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  // --- Global Interceptor & Filter ---
   app.useGlobalFilters(new HttpExceptionFilter(logger));
   app.useGlobalInterceptors(new ResponseInterceptor(logger));
-
   await app.listen(config.port ?? 3000);
 }
 

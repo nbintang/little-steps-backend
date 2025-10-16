@@ -13,7 +13,7 @@ import { Request } from 'express';
 import { QueryQuizPlayDto } from '../../quiz/dto/quiz/query-quiz-play.dto';
 import { QuizService } from '../../../modules/quiz/services/quiz.service';
 import { QuizPlayService } from '../../../modules/quiz/services/quiz-play.service';
-import { StatisticService } from 'src/modules/statistics/statistic.service';
+import { StatisticService } from '../../../modules/statistics/statistic.service';
 
 @UseGuards(ChildAccessGuard)
 @Controller('protected/children/quizzes')
