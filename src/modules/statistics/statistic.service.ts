@@ -45,6 +45,10 @@ export class StatisticService {
       },
     };
   }
+
+  async getAllUserProgress(query?: QueryStatisticQuizDto) {
+    
+  }
   async getAllQuizProgress(query?: QueryStatisticQuizDto) {
     const {
       type = ProgressChartType.OVERALL,

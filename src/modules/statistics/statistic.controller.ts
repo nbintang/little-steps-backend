@@ -25,4 +25,10 @@ export class StatisticController {
   async getAllQuizProgress(@Query() query: QueryStatisticQuizDto) {
     return this.progressService.getAllQuizProgress(query);
   }
+
+  @Get('users')
+  @HttpCode(HttpStatus.OK)
+  async getAllUserProgress(@Query() query: QueryStatisticQuizDto) {
+    return this.progressService.getAllUserProgress(query);
+  }
 }
