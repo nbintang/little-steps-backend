@@ -45,6 +45,12 @@ export class ChildrenQuizController {
   ) {
     return this.quizPlayService.getQuizForPlay(quizId, query);
   }
+  @Get(':quizId/progress')
+  async getProgress(@Param('quizId') quizId: string, @Req() request: Request) {
+    const childId = request.child.childId;
+    return this.quizPlayService.getProgress(childId, quizId);
+  }
+
   @Post(':quizId/submit')
   async submitQuiz(
     @Param('quizId') quizId: string,

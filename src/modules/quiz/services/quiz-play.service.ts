@@ -228,7 +228,16 @@ export class QuizPlayService {
       },
     };
   }
-
+  async getProgress(childId: string, quizId: string) {
+    const progress = await this.prisma.progress.findUnique({
+      where: { quizId_childId: { quizId, childId } },
+    });
+    if (!progress) throw new NotFoundException('Progress not found');
+    return {
+      message: 'Progress found',
+      data: progress,
+    };
+  }
   async submitQuiz(dto: SubmitQuizDto) {
     const { quizId, childId, answers } = dto;
     const quizForScoring = await this.prisma.quiz.findUnique({
